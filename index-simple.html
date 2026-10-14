@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Daybreak</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800&family=Martian+Mono:wght@400;500&family=Schibsted+Grotesk:wght@400;500;600&display=swap">
+<style>
+  :root {
+    color-scheme: dark;
+    --soot: #0f0c0b; --kiln: #181210; --seam: #2d2320; --ash: #eee6dc; --cinder: #a39488;
+    --ember: #f08a3c; --ok: #86d18c; --bad: #ff6a5c;
+    --display: "Big Shoulders Display", "Arial Narrow", Impact, sans-serif;
+    --body: "Schibsted Grotesk", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    --mono: "Martian Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--soot); color: var(--ash); }
+  body { font-family: var(--body); font-size: 16px; line-height: 1.55; }
+  a { color: var(--ember); }
+  .wrap { max-width: 68rem; margin-inline: auto; padding-inline: clamp(18px, 4vw, 44px); }
+
+  header { padding-block: clamp(40px, 9vh, 100px) 36px; }
+  .mark { font-family: var(--display); font-weight: 800; font-size: clamp(68px, 15vw, 168px); line-height: .86; letter-spacing: .01em; margin: 0; text-transform: uppercase; }
+  .mark span { color: var(--ember); }
+  .thesis { font-size: clamp(20px, 2.6vw, 30px); max-width: 24ch; margin: 18px 0 0; text-wrap: balance; line-height: 1.3; }
+  .sub { color: var(--cinder); max-width: 58ch; margin: 18px 0 0; font-size: 17px; }
+  .cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
+  .cta a { font: 600 15px/1 var(--body); text-decoration: none; color: var(--ash); border: 1px solid var(--seam); border-radius: 999px; padding: 13px 20px; }
+  .cta a.go { border-color: var(--ember); background: color-mix(in srgb, var(--ember) 15%, transparent); }
+  .cta a:hover { border-color: var(--ember); }
+
+  .band { border-top: 1px solid var(--seam); padding-block: 44px; }
+  .eyebrow { font: 500 12px/1 var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--ember); margin: 0 0 10px; }
+  h2 { font-family: var(--display); font-weight: 700; font-size: clamp(30px, 4.5vw, 48px); letter-spacing: .02em; text-transform: uppercase; margin: 0 0 6px; text-wrap: balance; }
+  .lede { color: var(--cinder); max-width: 62ch; margin: 0 0 22px; }
+
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 10rem), 1fr)); gap: 18px; margin: 6px 0 0; }
+  .stat { border: 1px solid var(--seam); background: var(--kiln); border-radius: 8px; padding: 16px 18px; display: grid; gap: 3px; align-content: start; }
+  .stat .n { font-family: var(--display); font-weight: 800; font-size: clamp(30px, 4vw, 46px); line-height: 1; font-variant-numeric: tabular-nums; }
+  .stat .n.ok { color: var(--ok); } .stat .n.em { color: var(--ember); }
+  .stat .k { font-size: 12.5px; color: var(--cinder); letter-spacing: .02em; }
+  .note { font: 12px/1.5 var(--mono); color: var(--cinder); margin-top: 14px; }
+  .note b { color: var(--ash); font-weight: 500; }
+
+  table.scale { width: 100%; border-collapse: collapse; font: 13px/1.5 var(--mono); margin-top: 8px; }
+  table.scale th, table.scale td { text-align: right; padding: 8px 10px; border-bottom: 1px solid var(--seam); font-variant-numeric: tabular-nums; }
+  table.scale th { color: var(--cinder); font-weight: 500; letter-spacing: .04em; }
+  table.scale td:first-child, table.scale th:first-child { text-align: left; }
+  table.scale td.win { color: var(--ok); }
+
+  ul.clean { list-style: none; margin: 14px 0 0; padding: 0; display: grid; gap: 10px; }
+  ul.clean li { display: grid; grid-template-columns: 1.2em 1fr; gap: 10px; color: var(--ash); max-width: 70ch; }
+  ul.clean li::before { content: "→"; color: var(--ember); }
+  ul.clean li b { font-weight: 600; }
+  .honest li::before { content: "·"; color: var(--cinder); }
+  .honest li { color: var(--cinder); } .honest li b { color: var(--ash); }
+
+  .road { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr)); gap: 18px; margin-top: 8px; }
+  .card { border: 1px solid var(--seam); background: var(--kiln); border-radius: 8px; padding: 20px; display: grid; gap: 8px; align-content: start; }
+  .card h3 { font-family: var(--display); font-weight: 700; font-size: 22px; letter-spacing: .03em; text-transform: uppercase; margin: 0; }
+  .card.now { border-color: color-mix(in srgb, var(--ok) 40%, var(--seam)); }
+  .card p { margin: 0; color: var(--cinder); font-size: 14.5px; }
+  .tag { font: 500 11px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; padding: 4px 8px; border-radius: 4px; width: fit-content; }
+  .tag.live { color: var(--ok); border: 1px solid color-mix(in srgb, var(--ok) 50%, var(--seam)); }
+  .tag.next { color: var(--cinder); border: 1px solid var(--seam); }
+  footer { border-top: 1px solid var(--seam); padding-block: 36px 64px; color: var(--cinder); font: 13px/1.6 var(--mono); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1 class="mark">Day<span>break</span></h1>
+    <p class="thesis">Verified computation. Nothing trusted, everything checked.</p>
+    <p class="sub">Not a bigger model on more text. A <b style="color:var(--ash)">verifier</b> trains the model, proves every output, and generates the data. Learning proposes; an exact check decides. Built in one day.</p>
+    <div class="cta">
+      <a class="go" href="./cpu.html">Open the live CPU demo →</a>
+      <a href="./lens.html">Open Daybreak Lens →</a>
+    </div>
+  </header>
+
+  <section class="band">
+    <p class="eyebrow">Pillar 1 · born today, cross-checked</p>
+    <h2>A CPU that didn't exist this morning</h2>
+    <p class="lede">One agent wrote the instruction set. Others, each given only that spec, built two emulators, an assembler and the programs — none saw another's code. The two emulators are compared after every instruction.</p>
+    <div class="stats">
+      <div class="stat"><span class="n ok">0</span><span class="k">mismatches across 71M+ instructions cross-checked</span></div>
+      <div class="stat"><span class="n">14/14</span><span class="k">planted bugs caught by the cross-check</span></div>
+      <div class="stat"><span class="n">2</span><span class="k">spec ambiguities the check exposed and fixed</span></div>
+      <div class="stat"><span class="n">1</span><span class="k">day, spec → working, verified silicon</span></div>
+    </div>
+    <p class="note">Doom's fire and a BFS maze run live, every frame matched pixel-for-pixel against an independent reference. <a href="./cpu.html">Run it, and break an emulator on purpose →</a></p>
+  </section>
+
+  <section class="band">
+    <p class="eyebrow">Pillar 2 · accurate bug finding on real code</p>
+    <h2>Every fix becomes a verified detector</h2>
+    <p class="lede">Pointed at <b style="color:var(--ash)">reth</b> (Paradigm's Ethereum client, ~460k lines). Each <code>fix(</code> commit is a free, maintainer-labeled bug. Daybreak reverts the fix, keeps its test, rebuilds and runs it — settling by compile-and-run whether a test truly guards each bug. No LLM, no fuzzing.</p>
+    <div class="stats">
+      <div class="stat"><span class="n ok">4/4</span><span class="k">assessable fixes confirmed — reverting breaks the test, as it should</span></div>
+      <div class="stat"><span class="n em">24%</span><span class="k">of recent code-fixes (20/84) shipped with no regression test</span></div>
+      <div class="stat"><span class="n">1</span><span class="k">verified coverage gap: zero-chunk-size guards, zero tests</span></div>
+      <div class="stat"><span class="n">2</span><span class="k">of its own false positives caught — the tool verifies itself</span></div>
+    </div>
+    <p class="note">It gets stronger every time maintainers merge a fix. Runs in CI, <b>$0</b> at inference, no code leaves the building.</p>
+  </section>
+
+  <section class="band">
+    <p class="eyebrow">Pillar 3 · verifier-trained models, from scratch, that scale</p>
+    <h2>The verifier is the teacher</h2>
+    <p class="lede">A from-scratch model (no pretrained weights) learns to synthesize programs by <b style="color:var(--ash)">inverting the exact interpreter</b> — every random program is a free, perfectly-labeled example. Pure RL from reward collapsed (0/10, worse than random); this bootstraps immediately. Every output is checked exhaustively over all 256 inputs.</p>
+    <div class="stats">
+      <div class="stat"><span class="n ok">18/20</span><span class="k">held-out targets solved — flat across every difficulty</span></div>
+      <div class="stat"><span class="n">10/10</span><span class="k">programs emitted as real MLIR, verified by the MLIR compiler</span></div>
+      <div class="stat"><span class="n em">42.4B</span><span class="k">candidate programs/sec on one GPU (Z3-proven superoptimizer)</span></div>
+      <div class="stat"><span class="n">3 vs 5</span><span class="k">instructions: beat GCC/Clang on is_pow2, all proven</span></div>
+    </div>
+    <p class="eyebrow" style="margin-top:28px">scaling — the search space explodes, the model stays flat</p>
+    <table class="scale">
+      <tr><th>program length</th><th>search space</th><th>model: candidates</th><th>blind search</th><th>speed-up</th></tr>
+      <tr><td>2</td><td>5.3 × 10⁵</td><td>6</td><td>70</td><td class="win">11.7×</td></tr>
+      <tr><td>3</td><td>3.9 × 10⁸</td><td>4</td><td>58</td><td class="win">14.5×</td></tr>
+      <tr><td>4</td><td>6.6 × 10¹¹</td><td>5</td><td>45</td><td class="win">9.0×</td></tr>
+      <tr><td>5</td><td>5.9 × 10¹⁴</td><td>12</td><td>79</td><td class="win">6.6×</td></tr>
+      <tr><td>6</td><td>1.7 × 10¹⁸</td><td>5</td><td>23</td><td class="win">4.6×</td></tr>
+    </table>
+    <p class="note">The space grows <b>13 orders of magnitude</b> (10⁵ → 10¹⁸); the model's cost to a <b>proven-correct</b> program stays ~5 candidates and solves 18/20 throughout — 5–15× more sample-efficient than search. Learned proposal makes an exponentially-growing space navigable at flat cost. The same loop scales to MLIR: programs become IR edits, the verifier becomes compile-and-test.</p>
+  </section>
+
+  <section class="band">
+    <p class="eyebrow">the honest part</p>
+    <h2>What didn't work</h2>
+    <ul class="clean honest">
+      <li><b>Representation isn't the lever.</b> The same anomaly scan localizes bugs no better on IR than on source (6.1% vs 7.0%); library LLVM IR can't even see generic functions. We learned this for ~$3 instead of betting a raise on it.</li>
+      <li><b>Pure RL from reward collapses from scratch</b> — it never finds the first correct answer to learn from. The fix was to let the verifier generate the data, not just score it.</li>
+      <li>Both results shaped the architecture above. We report the failures because the verifier makes them cheap.</li>
+    </ul>
+  </section>
+
+  <section class="band">
+    <p class="eyebrow">product</p>
+    <h2>Where this goes</h2>
+    <div class="road">
+      <div class="card now">
+        <span class="tag live">live now</span>
+        <h3>Verified bug finding</h3>
+        <p>Every fix in a repo's history becomes a permanent, verified detector and a test-coverage audit. Catches un-guarded and ineffective fixes. No LLM, runs in CI, nothing leaves the building, gets stronger with every merge.</p>
+      </div>
+      <div class="card">
+        <span class="tag next">next</span>
+        <h3>Compiler switcher</h3>
+        <p>Same program, swap the machine file — the compiler re-checks placement and capacity against new hardware before a binary exists. Demonstrated on the Daybreak chip: it admits a valid tensor and refuses an oversized or wrong-typed one, by proof, not by running it.</p>
+      </div>
+      <div class="card">
+        <span class="tag next">the bet</span>
+        <h3>Verified computation at scale</h3>
+        <p>Train on IR across a codebase's whole history, verifier in the loop (RLVR), on MLIR as the universal substrate. A model whose edge over brute force compounds with problem hardness — because it trades exponential search for verified proposal.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div>Daybreak · nothing trusted, everything checked · built in a day</div>
+    <div style="margin-top:8px"><a href="./cpu.html">CPU cross-check demo</a> &nbsp;·&nbsp; <a href="./lens.html">Daybreak Lens</a></div>
+  </footer>
+</div>
+</body>
+</html>

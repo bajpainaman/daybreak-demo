@@ -4,167 +4,385 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Daybreak</title>
+<meta name="description" content="Verified computation. Nothing trusted, everything checked. A verifier trains the model, proves every output, and generates the data.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800&family=Martian+Mono:wght@400;500&family=Schibsted+Grotesk:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;700;800&family=Martian+Mono:wght@400;500&family=Schibsted+Grotesk:wght@400;500;600;700&display=swap">
 <style>
   :root {
     color-scheme: dark;
-    --soot: #0f0c0b; --kiln: #181210; --seam: #2d2320; --ash: #eee6dc; --cinder: #a39488;
-    --ember: #f08a3c; --ok: #86d18c; --bad: #ff6a5c;
-    --display: "Big Shoulders Display", "Arial Narrow", Impact, sans-serif;
-    --body: "Schibsted Grotesk", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-    --mono: "Martian Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    --soot:#0d0a09; --kiln:#17110f; --kiln2:#1e1613; --seam:#2d2320; --ash:#f1ebe2; --cinder:#a89a8d;
+    --ember:#f4883a; --ember2:#ff9d57; --ok:#8ad691; --bad:#ff6a5c;
+    --display:"Big Shoulders Display","Arial Narrow",Impact,sans-serif;
+    --body:"Schibsted Grotesk",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+    --mono:"Martian Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+    --gutter:clamp(22px,6vw,120px);
   }
-  * { box-sizing: border-box; }
-  html, body { margin: 0; background: var(--soot); color: var(--ash); }
-  body { font-family: var(--body); font-size: 16px; line-height: 1.55; }
-  a { color: var(--ember); }
-  .wrap { max-width: 68rem; margin-inline: auto; padding-inline: clamp(18px, 4vw, 44px); }
+  * { box-sizing:border-box; }
+  html { scroll-behavior:smooth; }
+  html,body { margin:0; background:var(--soot); color:var(--ash); }
+  body { font-family:var(--body); font-size:clamp(17px,1.4vw,20px); line-height:1.5; -webkit-font-smoothing:antialiased; overflow-x:hidden; }
+  a { color:var(--ember); text-decoration:none; }
+  ::selection { background:var(--ember); color:#1a0f07; }
 
-  header { padding-block: clamp(40px, 9vh, 100px) 36px; }
-  .mark { font-family: var(--display); font-weight: 800; font-size: clamp(68px, 15vw, 168px); line-height: .86; letter-spacing: .01em; margin: 0; text-transform: uppercase; }
-  .mark span { color: var(--ember); }
-  .thesis { font-size: clamp(20px, 2.6vw, 30px); max-width: 24ch; margin: 18px 0 0; text-wrap: balance; line-height: 1.3; }
-  .sub { color: var(--cinder); max-width: 58ch; margin: 18px 0 0; font-size: 17px; }
-  .cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
-  .cta a { font: 600 15px/1 var(--body); text-decoration: none; color: var(--ash); border: 1px solid var(--seam); border-radius: 999px; padding: 13px 20px; }
-  .cta a.go { border-color: var(--ember); background: color-mix(in srgb, var(--ember) 15%, transparent); }
-  .cta a:hover { border-color: var(--ember); }
+  /* scene = one narrative beat, at least a screen tall, content centered */
+  .scene { position:relative; min-height:100svh; display:grid; align-content:center; gap:22px;
+    padding:clamp(80px,12vh,160px) var(--gutter); border-top:1px solid transparent; }
+  .scene.alt { background:linear-gradient(180deg,var(--soot),var(--kiln) 60%,var(--soot)); }
+  .inner { width:100%; max-width:74rem; margin-inline:auto; }
+  .eyebrow { font:500 clamp(11px,1vw,13px)/1 var(--mono); letter-spacing:.22em; text-transform:uppercase; color:var(--ember); margin:0 0 20px; }
+  h1,h2,h3 { margin:0; text-wrap:balance; }
+  .kicker { font-family:var(--display); font-weight:700; text-transform:uppercase; letter-spacing:.015em; line-height:.98;
+    font-size:clamp(40px,7vw,96px); }
+  .big { font-family:var(--display); font-weight:700; text-transform:uppercase; letter-spacing:.01em; line-height:.95;
+    font-size:clamp(44px,9vw,120px); }
+  .em { color:var(--ember); }
+  .lede { font-size:clamp(19px,2.1vw,27px); color:var(--ash); max-width:30ch; line-height:1.3; margin:22px 0 0; text-wrap:pretty; }
+  .sub { color:var(--cinder); max-width:60ch; margin:18px 0 0; }
+  .mono-note { font:12px/1.6 var(--mono); color:var(--cinder); margin-top:18px; max-width:72ch; }
+  .mono-note b { color:var(--ash); font-weight:500; }
 
-  .band { border-top: 1px solid var(--seam); padding-block: 44px; }
-  .eyebrow { font: 500 12px/1 var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--ember); margin: 0 0 10px; }
-  h2 { font-family: var(--display); font-weight: 700; font-size: clamp(30px, 4.5vw, 48px); letter-spacing: .02em; text-transform: uppercase; margin: 0 0 6px; text-wrap: balance; }
-  .lede { color: var(--cinder); max-width: 62ch; margin: 0 0 22px; }
+  /* reveal on scroll (from a visible-at-rest baseline; disabled for reduced motion) */
+  .r { opacity:0; transform:translateY(26px); transition:opacity .7s cubic-bezier(.22,.61,.36,1), transform .7s cubic-bezier(.22,.61,.36,1); }
+  .r.in { opacity:1; transform:none; }
+  .r.d1{transition-delay:.08s} .r.d2{transition-delay:.16s} .r.d3{transition-delay:.24s} .r.d4{transition-delay:.32s}
+  @media (prefers-reduced-motion:reduce){ .r{opacity:1;transform:none;transition:none} html{scroll-behavior:auto} }
 
-  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 10rem), 1fr)); gap: 18px; margin: 6px 0 0; }
-  .stat { border: 1px solid var(--seam); background: var(--kiln); border-radius: 8px; padding: 16px 18px; display: grid; gap: 3px; align-content: start; }
-  .stat .n { font-family: var(--display); font-weight: 800; font-size: clamp(30px, 4vw, 46px); line-height: 1; font-variant-numeric: tabular-nums; }
-  .stat .n.ok { color: var(--ok); } .stat .n.em { color: var(--ember); }
-  .stat .k { font-size: 12.5px; color: var(--cinder); letter-spacing: .02em; }
-  .note { font: 12px/1.5 var(--mono); color: var(--cinder); margin-top: 14px; }
-  .note b { color: var(--ash); font-weight: 500; }
+  /* hero */
+  #hero { min-height:100svh; display:grid; align-content:center; padding:0 var(--gutter); overflow:hidden; }
+  #fire { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:.5;
+    image-rendering:pixelated; filter:saturate(1.1) contrast(1.05); mask-image:linear-gradient(180deg,transparent,#000 22%,#000 55%,transparent 96%); -webkit-mask-image:linear-gradient(180deg,transparent,#000 22%,#000 55%,transparent 96%); }
+  #hero .inner { position:relative; z-index:1; }
+  .logo { font-family:var(--display); font-weight:800; text-transform:uppercase; line-height:.84; letter-spacing:.012em;
+    font-size:clamp(84px,19vw,260px); margin:0; }
+  .logo span{color:var(--ember)}
+  .tag { font-size:clamp(20px,2.6vw,34px); color:var(--ash); margin:14px 0 0; max-width:26ch; line-height:1.22; text-wrap:balance; }
+  .scrollcue { position:absolute; left:50%; bottom:30px; transform:translateX(-50%); z-index:1; font:500 11px/1 var(--mono); letter-spacing:.2em; text-transform:uppercase; color:var(--cinder); display:grid; justify-items:center; gap:10px; }
+  .scrollcue .bar{ width:1px; height:34px; background:linear-gradient(var(--ember),transparent); animation:cue 1.8s ease-in-out infinite; }
+  @keyframes cue{0%,100%{transform:scaleY(.4);opacity:.4}50%{transform:scaleY(1);opacity:1}}
 
-  table.scale { width: 100%; border-collapse: collapse; font: 13px/1.5 var(--mono); margin-top: 8px; }
-  table.scale th, table.scale td { text-align: right; padding: 8px 10px; border-bottom: 1px solid var(--seam); font-variant-numeric: tabular-nums; }
-  table.scale th { color: var(--cinder); font-weight: 500; letter-spacing: .04em; }
-  table.scale td:first-child, table.scale th:first-child { text-align: left; }
-  table.scale td.win { color: var(--ok); }
+  /* progress rail */
+  nav.rail { position:fixed; right:18px; top:50%; transform:translateY(-50%); z-index:40; display:grid; gap:12px; }
+  nav.rail a { width:9px; height:9px; border-radius:50%; border:1px solid var(--seam); background:transparent; display:block; transition:.25s; }
+  nav.rail a:hover{ border-color:var(--cinder); }
+  nav.rail a.on { background:var(--ember); border-color:var(--ember); transform:scale(1.25); }
+  @media (max-width:760px){ nav.rail{display:none} }
 
-  ul.clean { list-style: none; margin: 14px 0 0; padding: 0; display: grid; gap: 10px; }
-  ul.clean li { display: grid; grid-template-columns: 1.2em 1fr; gap: 10px; color: var(--ash); max-width: 70ch; }
-  ul.clean li::before { content: "→"; color: var(--ember); }
-  ul.clean li b { font-weight: 600; }
-  .honest li::before { content: "·"; color: var(--cinder); }
-  .honest li { color: var(--cinder); } .honest li b { color: var(--ash); }
+  /* stat tiles */
+  .tiles { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,13rem),1fr)); gap:16px; margin-top:34px; }
+  .tile { border:1px solid var(--seam); background:var(--kiln); border-radius:12px; padding:22px; display:grid; gap:6px; align-content:start; }
+  .tile .n { font-family:var(--display); font-weight:800; font-size:clamp(38px,5vw,58px); line-height:1; font-variant-numeric:tabular-nums; }
+  .tile .n.ok{color:var(--ok)} .tile .n.em{color:var(--ember)}
+  .tile .k { font-size:14px; color:var(--cinder); line-height:1.4; }
 
-  .road { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr)); gap: 18px; margin-top: 8px; }
-  .card { border: 1px solid var(--seam); background: var(--kiln); border-radius: 8px; padding: 20px; display: grid; gap: 8px; align-content: start; }
-  .card h3 { font-family: var(--display); font-weight: 700; font-size: 22px; letter-spacing: .03em; text-transform: uppercase; margin: 0; }
-  .card.now { border-color: color-mix(in srgb, var(--ok) 40%, var(--seam)); }
-  .card p { margin: 0; color: var(--cinder); font-size: 14.5px; }
-  .tag { font: 500 11px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; padding: 4px 8px; border-radius: 4px; width: fit-content; }
-  .tag.live { color: var(--ok); border: 1px solid color-mix(in srgb, var(--ok) 50%, var(--seam)); }
-  .tag.next { color: var(--cinder); border: 1px solid var(--seam); }
-  footer { border-top: 1px solid var(--seam); padding-block: 36px 64px; color: var(--cinder); font: 13px/1.6 var(--mono); }
+  /* loop diagram */
+  .loop { display:flex; flex-wrap:wrap; align-items:stretch; gap:14px; margin-top:38px; }
+  .node { flex:1 1 180px; border:1px solid var(--seam); border-radius:12px; padding:22px; background:var(--kiln); display:grid; gap:6px; }
+  .node.v { border-color:color-mix(in srgb,var(--ok) 45%,var(--seam)); background:linear-gradient(180deg,var(--kiln),color-mix(in srgb,var(--ok) 8%,var(--kiln))); }
+  .node h3 { font-family:var(--display); font-weight:700; text-transform:uppercase; font-size:24px; letter-spacing:.02em; }
+  .node p { margin:0; color:var(--cinder); font-size:14px; }
+  .arrow { align-self:center; color:var(--ember); font-size:26px; }
+  @media (max-width:720px){ .arrow{transform:rotate(90deg)} }
+
+  /* demo frame */
+  .demo { margin-top:34px; border:1px solid var(--seam); border-radius:14px; overflow:hidden; background:#070707; box-shadow:0 30px 80px -40px rgba(0,0,0,.9); }
+  .demo .bar { display:flex; align-items:center; gap:8px; padding:11px 15px; background:var(--kiln2); border-bottom:1px solid var(--seam); font:12px/1 var(--mono); color:var(--cinder); }
+  .demo .bar .dot{ width:9px;height:9px;border-radius:50%;background:var(--seam) } .demo .bar .dot:nth-child(2){background:#3a2d27}
+  .demo .bar .u { margin-left:10px; }
+  .demo .bar .open { margin-left:auto; color:var(--ember); }
+  .demo iframe { width:100%; height:min(72vh,760px); border:0; display:block; background:#070707; }
+  .demo.short iframe { height:min(66vh,680px); }
+
+  /* scaling chart */
+  .chartwrap { margin-top:36px; display:grid; grid-template-columns:1.4fr 1fr; gap:34px; align-items:center; }
+  @media (max-width:860px){ .chartwrap{grid-template-columns:1fr} }
+  .chart { width:100%; }
+  .chart text { font-family:var(--mono); fill:var(--cinder); }
+  .legend { display:grid; gap:14px; }
+  .legend .row{ display:grid; grid-template-columns:auto 1fr; gap:10px; align-items:start; }
+  .legend .sw{ width:14px;height:14px;border-radius:3px;margin-top:4px }
+  .legend .row b{ color:var(--ash); font-weight:600 } .legend .row span{ color:var(--cinder); font-size:14px }
+
+  /* code */
+  pre.code { margin:28px 0 0; background:var(--kiln); border:1px solid var(--seam); border-left:3px solid var(--ember);
+    border-radius:10px; padding:20px 22px; overflow-x:auto; font:13px/1.65 var(--mono); color:var(--ash); }
+  pre.code .c{color:var(--cinder)} pre.code .k{color:var(--ember2)} pre.code .ok{color:var(--ok)}
+
+  /* honest list */
+  ul.list{ list-style:none; margin:26px 0 0; padding:0; display:grid; gap:18px; max-width:72ch; }
+  ul.list li{ display:grid; grid-template-columns:1.3em 1fr; gap:14px; color:var(--cinder); font-size:18px; }
+  ul.list li::before{ content:"—"; color:var(--ember); }
+  ul.list li b{ color:var(--ash); font-weight:600; }
+
+  /* roadmap */
+  .road{ display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,19rem),1fr)); gap:18px; margin-top:34px; }
+  .rc{ border:1px solid var(--seam); background:var(--kiln); border-radius:14px; padding:26px; display:grid; gap:10px; align-content:start; }
+  .rc.now{ border-color:color-mix(in srgb,var(--ok) 42%,var(--seam)); }
+  .rc h3{ font-family:var(--display); font-weight:700; text-transform:uppercase; font-size:25px; letter-spacing:.025em; }
+  .rc p{ margin:0; color:var(--cinder); font-size:15px; }
+  .pill{ font:500 11px/1 var(--mono); letter-spacing:.1em; text-transform:uppercase; padding:5px 9px; border-radius:5px; width:fit-content; }
+  .pill.live{ color:var(--ok); border:1px solid color-mix(in srgb,var(--ok) 50%,var(--seam)); }
+  .pill.next{ color:var(--cinder); border:1px solid var(--seam); }
+  .pill.bet{ color:var(--ember); border:1px solid color-mix(in srgb,var(--ember) 50%,var(--seam)); }
+
+  .cta{ display:flex; flex-wrap:wrap; gap:14px; margin-top:34px; }
+  .cta a{ font:600 16px/1 var(--body); color:var(--ash); border:1px solid var(--seam); border-radius:999px; padding:16px 26px; }
+  .cta a.go{ border-color:var(--ember); background:color-mix(in srgb,var(--ember) 16%,transparent); }
+  .cta a:hover{ border-color:var(--ember); }
+  footer{ padding:40px var(--gutter) 70px; color:var(--cinder); font:13px/1.7 var(--mono); border-top:1px solid var(--seam); }
 </style>
 </head>
 <body>
-<div class="wrap">
-  <header>
-    <h1 class="mark">Day<span>break</span></h1>
-    <p class="thesis">Verified computation. Nothing trusted, everything checked.</p>
-    <p class="sub">Not a bigger model on more text. A <b style="color:var(--ash)">verifier</b> trains the model, proves every output, and generates the data. Learning proposes; an exact check decides. Built in one day.</p>
-    <div class="cta">
-      <a class="go" href="./cpu.html">Open the live CPU demo →</a>
-      <a href="./lens.html">Open Daybreak Lens →</a>
-    </div>
-  </header>
 
-  <section class="band">
-    <p class="eyebrow">Pillar 1 · born today, cross-checked</p>
-    <h2>A CPU that didn't exist this morning</h2>
-    <p class="lede">One agent wrote the instruction set. Others, each given only that spec, built two emulators, an assembler and the programs — none saw another's code. The two emulators are compared after every instruction.</p>
-    <div class="stats">
-      <div class="stat"><span class="n ok">0</span><span class="k">mismatches across 71M+ instructions cross-checked</span></div>
-      <div class="stat"><span class="n">14/14</span><span class="k">planted bugs caught by the cross-check</span></div>
-      <div class="stat"><span class="n">2</span><span class="k">spec ambiguities the check exposed and fixed</span></div>
-      <div class="stat"><span class="n">1</span><span class="k">day, spec → working, verified silicon</span></div>
-    </div>
-    <p class="note">Doom's fire and a BFS maze run live, every frame matched pixel-for-pixel against an independent reference. <a href="./cpu.html">Run it, and break an emulator on purpose →</a></p>
-  </section>
+<nav class="rail" aria-label="Sections"></nav>
 
-  <section class="band">
-    <p class="eyebrow">Pillar 2 · accurate bug finding on real code</p>
-    <h2>Every fix becomes a verified detector</h2>
-    <p class="lede">Pointed at <b style="color:var(--ash)">reth</b> (Paradigm's Ethereum client, ~460k lines). Each <code>fix(</code> commit is a free, maintainer-labeled bug. Daybreak reverts the fix, keeps its test, rebuilds and runs it — settling by compile-and-run whether a test truly guards each bug. No LLM, no fuzzing.</p>
-    <div class="stats">
-      <div class="stat"><span class="n ok">4/4</span><span class="k">assessable fixes confirmed — reverting breaks the test, as it should</span></div>
-      <div class="stat"><span class="n em">24%</span><span class="k">of recent code-fixes (20/84) shipped with no regression test</span></div>
-      <div class="stat"><span class="n">1</span><span class="k">verified coverage gap: zero-chunk-size guards, zero tests</span></div>
-      <div class="stat"><span class="n">2</span><span class="k">of its own false positives caught — the tool verifies itself</span></div>
-    </div>
-    <p class="note">It gets stronger every time maintainers merge a fix. Runs in CI, <b>$0</b> at inference, no code leaves the building.</p>
-  </section>
+<!-- 01 HERO -->
+<section id="hero" data-nav="Daybreak">
+  <canvas id="fire" width="128" height="64" aria-hidden="true"></canvas>
+  <div class="inner">
+    <h1 class="logo">Day<span>break</span></h1>
+    <p class="tag r in">Verified computation.<br>Nothing trusted, everything checked.</p>
+  </div>
+  <div class="scrollcue"><span>scroll</span><span class="bar"></span></div>
+</section>
 
-  <section class="band">
-    <p class="eyebrow">Pillar 3 · verifier-trained models, from scratch, that scale</p>
-    <h2>The verifier is the teacher</h2>
-    <p class="lede">A from-scratch model (no pretrained weights) learns to synthesize programs by <b style="color:var(--ash)">inverting the exact interpreter</b> — every random program is a free, perfectly-labeled example. Pure RL from reward collapsed (0/10, worse than random); this bootstraps immediately. Every output is checked exhaustively over all 256 inputs.</p>
-    <div class="stats">
-      <div class="stat"><span class="n ok">18/20</span><span class="k">held-out targets solved — flat across every difficulty</span></div>
-      <div class="stat"><span class="n">10/10</span><span class="k">programs emitted as real MLIR, verified by the MLIR compiler</span></div>
-      <div class="stat"><span class="n em">42.4B</span><span class="k">candidate programs/sec on one GPU (Z3-proven superoptimizer)</span></div>
-      <div class="stat"><span class="n">3 vs 5</span><span class="k">instructions: beat GCC/Clang on is_pow2, all proven</span></div>
-    </div>
-    <p class="eyebrow" style="margin-top:28px">scaling — the search space explodes, the model stays flat</p>
-    <table class="scale">
-      <tr><th>program length</th><th>search space</th><th>model: candidates</th><th>blind search</th><th>speed-up</th></tr>
-      <tr><td>2</td><td>5.3 × 10⁵</td><td>6</td><td>70</td><td class="win">11.7×</td></tr>
-      <tr><td>3</td><td>3.9 × 10⁸</td><td>4</td><td>58</td><td class="win">14.5×</td></tr>
-      <tr><td>4</td><td>6.6 × 10¹¹</td><td>5</td><td>45</td><td class="win">9.0×</td></tr>
-      <tr><td>5</td><td>5.9 × 10¹⁴</td><td>12</td><td>79</td><td class="win">6.6×</td></tr>
-      <tr><td>6</td><td>1.7 × 10¹⁸</td><td>5</td><td>23</td><td class="win">4.6×</td></tr>
-    </table>
-    <p class="note">The space grows <b>13 orders of magnitude</b> (10⁵ → 10¹⁸); the model's cost to a <b>proven-correct</b> program stays ~5 candidates and solves 18/20 throughout — 5–15× more sample-efficient than search. Learned proposal makes an exponentially-growing space navigable at flat cost. The same loop scales to MLIR: programs become IR edits, the verifier becomes compile-and-test.</p>
-  </section>
+<!-- 02 PROBLEM -->
+<section class="scene" data-nav="The gap" id="s1">
+  <div class="inner">
+    <p class="eyebrow r">the gap</p>
+    <h2 class="big r d1">AI can <span class="em">compute</span>.<br>It can't <span class="em">prove</span> it's right.</h2>
+    <p class="lede r d2">Models generate code, answers, whole programs — and we check them by vibes. At the scale AI now writes software, "looks correct" is not a foundation. One wrong register, one skipped validation, one silent overflow, and trust is gone.</p>
+    <p class="sub r d3">The frontier is racing to make models that write more. Daybreak makes computation you can <b style="color:var(--ash)">prove</b>.</p>
+  </div>
+</section>
 
-  <section class="band">
-    <p class="eyebrow">the honest part</p>
-    <h2>What didn't work</h2>
-    <ul class="clean honest">
-      <li><b>Representation isn't the lever.</b> The same anomaly scan localizes bugs no better on IR than on source (6.1% vs 7.0%); library LLVM IR can't even see generic functions. We learned this for ~$3 instead of betting a raise on it.</li>
-      <li><b>Pure RL from reward collapses from scratch</b> — it never finds the first correct answer to learn from. The fix was to let the verifier generate the data, not just score it.</li>
-      <li>Both results shaped the architecture above. We report the failures because the verifier makes them cheap.</li>
+<!-- 03 THE IDEA -->
+<section class="scene alt" data-nav="The idea" id="s2">
+  <div class="inner">
+    <p class="eyebrow r">the idea</p>
+    <h2 class="kicker r d1">Propose. Verify.<br>Nothing trusted.</h2>
+    <p class="sub r d2">One loop under everything we built. The model proposes; an exact checker — a compiler, a test, a proof, an independent twin — decides. The verifier isn't just the judge. It's also the <b style="color:var(--ash)">teacher</b> and the <b style="color:var(--ash)">data source</b>.</p>
+    <div class="loop r d3">
+      <div class="node"><h3>Propose</h3><p>A model (or a search) suggests a program, a fix, an edit.</p></div>
+      <div class="arrow">→</div>
+      <div class="node v"><h3>Verify</h3><p>Compile it. Run the test. Prove it with Z3. Diff it against an independent build. A 0/1 that can't be gamed.</p></div>
+      <div class="arrow">→</div>
+      <div class="node"><h3>Keep &amp; learn</h3><p>Only proven outputs survive — and every check becomes training signal.</p></div>
+    </div>
+    <p class="mono-note r d4">This is the opposite of the LLM bet. Not a bigger model on more text — a model whose every output is checked, and whose teacher never lies.</p>
+  </div>
+</section>
+
+<!-- 04 PROOF I — CPU -->
+<section class="scene" data-nav="Born today" id="s3">
+  <div class="inner">
+    <p class="eyebrow r">proof i · hardware born today</p>
+    <h2 class="kicker r d1">A CPU that didn't<br>exist this morning.</h2>
+    <p class="sub r d2">One agent wrote a new instruction set. Others, each seeing only that spec, built two emulators, an assembler and the programs — none saw another's code. The two emulators are compared after <b style="color:var(--ash)">every single instruction</b>. Doom's fire runs live below; every frame is matched pixel-for-pixel against an independent reference.</p>
+    <div class="tiles r d3">
+      <div class="tile"><span class="n ok" data-count="0">0</span><span class="k">mismatches across 71M+ instructions cross-checked</span></div>
+      <div class="tile"><span class="n" data-count="14" data-suffix="/14">14/14</span><span class="k">planted bugs caught by the cross-check</span></div>
+      <div class="tile"><span class="n" data-count="2">2</span><span class="k">spec ambiguities the check exposed &amp; fixed</span></div>
+      <div class="tile"><span class="n" data-count="1">1</span><span class="k">day · spec → working, verified silicon</span></div>
+    </div>
+    <div class="demo r d2" data-embed="./cpu.html#maze">
+      <div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="u">daybreak · cpu cross-check — live</span><a class="open" href="./cpu.html" target="_blank" rel="noopener">open ↗</a></div>
+      <div class="ph" style="height:min(72vh,760px);display:grid;place-items:center;color:var(--cinder);font:13px/1 var(--mono)">scroll to load the live demo…</div>
+    </div>
+  </div>
+</section>
+
+<!-- 05 PROOF II — reth -->
+<section class="scene alt" data-nav="Real code" id="s4">
+  <div class="inner">
+    <p class="eyebrow r">proof ii · accurate bug finding on real code</p>
+    <h2 class="kicker r d1">Every fix becomes<br>a verified detector.</h2>
+    <p class="sub r d2">We pointed it at <b style="color:var(--ash)">reth</b> — Paradigm's Ethereum client, ~460k lines. Every <code style="color:var(--ember)">fix(</code> commit is a free, maintainer-labeled bug. Daybreak reverts the fix, keeps its test, rebuilds and runs — settling by compile-and-run whether a test truly guards each bug. No LLM. No fuzzing. It even caught its own false positives.</p>
+    <div class="tiles r d3">
+      <div class="tile"><span class="n ok" data-count="4" data-suffix="/4">4/4</span><span class="k">assessable fixes confirmed: reverting breaks the test</span></div>
+      <div class="tile"><span class="n em" data-count="24" data-suffix="%">24%</span><span class="k">of recent code-fixes (20/84) shipped with no regression test</span></div>
+      <div class="tile"><span class="n" data-count="1">1</span><span class="k">verified coverage gap: zero-chunk-size guards, zero tests</span></div>
+      <div class="tile"><span class="n" data-count="2">2</span><span class="k">of its own false positives caught — it verifies itself</span></div>
+    </div>
+    <pre class="code r d2"><span class="c"># Daybreak, auditing reth's immune system</span>
+revert fix(txpool): skip foreign-chain 7702 auths
+rebuild · run the fix's own test
+  <span class="ok">→ test FAILS</span>  the test truly guards the bug  <span class="c">(good)</span>
+
+revert fix(trie): reject zero chunk sizes
+rebuild · run the whole suite
+  <span class="k">→ suite STAYS GREEN</span>  the guard has no test  <span class="c">(finding)</span></pre>
+    <p class="mono-note r">It gets stronger every time maintainers merge a fix. Runs in CI · <b>$0</b> at inference · nothing leaves the building.</p>
+  </div>
+</section>
+
+<!-- 06 PROOF III — the model -->
+<section class="scene" data-nav="The teacher" id="s5">
+  <div class="inner">
+    <p class="eyebrow r">proof iii · the verifier trains the model</p>
+    <h2 class="kicker r d1">The verifier<br>is the teacher.</h2>
+    <p class="sub r d2">A model from scratch — <b style="color:var(--ash)">no pretrained weights</b> — learns to synthesize programs by inverting the exact interpreter: every random program is a free, perfectly-labeled example. Pure reinforcement from reward collapsed (0/10, worse than random). This bootstraps immediately. And its output isn't a toy format — it's <b style="color:var(--ash)">real MLIR</b> the actual compiler accepts and runs.</p>
+    <div class="tiles r d3">
+      <div class="tile"><span class="n ok" data-count="18" data-suffix="/20">18/20</span><span class="k">held-out targets solved — flat across every difficulty</span></div>
+      <div class="tile"><span class="n" data-count="10" data-suffix="/10">10/10</span><span class="k">programs emitted as real MLIR, verified by the MLIR compiler</span></div>
+      <div class="tile"><span class="n em" data-count="42.4" data-suffix="B">42.4B</span><span class="k">candidate programs/sec on one GPU (Z3-proven superoptimizer)</span></div>
+      <div class="tile"><span class="n" data-suffix="" >3 vs 5</span><span class="k">instructions — beat GCC &amp; Clang on is_pow2, all proven</span></div>
+    </div>
+    <pre class="code r d2"><span class="c">// the model's output — real MLIR the compiler accepted and ran, 256/256 inputs</span>
+func.func @f(%x: i8) -> i8 {
+  %c = arith.constant -1 : i8
+  %0 = <span class="k">arith.xori</span> %c, %x : i8        <span class="c">// bitwise NOT, synthesized from scratch</span>
+  return %0 : i8
+}                                      <span class="ok">verified ✓</span></pre>
+  </div>
+</section>
+
+<!-- 07 SCALING -->
+<section class="scene alt" data-nav="Scaling" id="s6">
+  <div class="inner">
+    <p class="eyebrow r">how big · scaling</p>
+    <h2 class="kicker r d1">The space explodes.<br>The model stays flat.</h2>
+    <p class="sub r d2">As programs get harder, the search space grows <b style="color:var(--ash)">exponentially</b> — 13 orders of magnitude across these lengths. Blind search drowns. The verifier-trained model's cost to a <b style="color:var(--ash)">proven-correct</b> program stays ~5 candidates and solves 18/20 throughout.</p>
+    <div class="chartwrap r d3">
+      <svg class="chart" viewBox="0 0 560 320" role="img" aria-label="Search space grows exponentially while model candidates stay flat">
+        <g id="chartg"></g>
+      </svg>
+      <div class="legend r d4">
+        <div class="row"><span class="sw" style="background:var(--seam)"></span><div><b>Search space</b><br><span>(ops × slots²)^length — 5×10⁵ → 1.7×10¹⁸</span></div></div>
+        <div class="row"><span class="sw" style="background:var(--cinder)"></span><div><b>Blind search</b><br><span>candidates to a verified program: 23–79, and it misses more</span></div></div>
+        <div class="row"><span class="sw" style="background:var(--ember)"></span><div><b>Verifier-trained model</b><br><span>~5 candidates, flat · 18/20 solved · 5–15× over search</span></div></div>
+      </div>
+    </div>
+    <p class="mono-note r">Not "bigger model, more text." Learned proposal makes an exponentially-growing space navigable at <b>flat cost</b> — the edge compounds as problems get harder. The same loop scales to MLIR: programs become IR edits, the verifier becomes compile-and-test over a whole codebase's history.</p>
+  </div>
+</section>
+
+<!-- 08 HONEST -->
+<section class="scene" data-nav="Honest" id="s7">
+  <div class="inner">
+    <p class="eyebrow r">the honest part</p>
+    <h2 class="kicker r d1">What didn't work.</h2>
+    <ul class="list r d2">
+      <li><b>Representation isn't the lever.</b> The same anomaly scan localizes bugs no better on IR than on source (6.1% vs 7.0%); library LLVM IR can't even see generic functions. We learned it for ~$3 instead of betting a raise on it.</li>
+      <li><b>Pure RL from reward collapses from scratch</b> — it never finds the first correct answer to learn from. The fix: let the verifier <i>generate</i> the data, not just score it.</li>
+      <li>Both failures shaped the architecture that works. We can afford to report them — <b>because the verifier makes being wrong cheap.</b></li>
     </ul>
-  </section>
+  </div>
+</section>
 
-  <section class="band">
-    <p class="eyebrow">product</p>
-    <h2>Where this goes</h2>
-    <div class="road">
-      <div class="card now">
-        <span class="tag live">live now</span>
-        <h3>Verified bug finding</h3>
-        <p>Every fix in a repo's history becomes a permanent, verified detector and a test-coverage audit. Catches un-guarded and ineffective fixes. No LLM, runs in CI, nothing leaves the building, gets stronger with every merge.</p>
-      </div>
-      <div class="card">
-        <span class="tag next">next</span>
-        <h3>Compiler switcher</h3>
-        <p>Same program, swap the machine file — the compiler re-checks placement and capacity against new hardware before a binary exists. Demonstrated on the Daybreak chip: it admits a valid tensor and refuses an oversized or wrong-typed one, by proof, not by running it.</p>
-      </div>
-      <div class="card">
-        <span class="tag next">the bet</span>
-        <h3>Verified computation at scale</h3>
-        <p>Train on IR across a codebase's whole history, verifier in the loop (RLVR), on MLIR as the universal substrate. A model whose edge over brute force compounds with problem hardness — because it trades exponential search for verified proposal.</p>
-      </div>
+<!-- 09 MEANING + ROADMAP -->
+<section class="scene alt" data-nav="What it means" id="s8">
+  <div class="inner">
+    <p class="eyebrow r">what it means for the space · how big</p>
+    <h2 class="kicker r d1">A verified model,<br>not a bigger one.</h2>
+    <p class="sub r d2">The industry is scaling trust by hoping. Daybreak scales it by proof. The signal is already everywhere and free — every fix commit, every test, every compiler — and no one is training on it with the verifier in the loop.</p>
+    <div class="road r d3">
+      <div class="rc now"><span class="pill live">live now</span><h3>Verified bug finding</h3><p>Every fix in a repo's history becomes a permanent, verified detector and a test-coverage audit. No LLM, runs in CI, nothing leaves the building, stronger with every merge.</p></div>
+      <div class="rc"><span class="pill next">next</span><h3>Compiler switcher</h3><p>Same program, swap the machine file — the compiler re-checks placement and capacity against new hardware before a binary exists. Admits a valid tensor, refuses an oversized or wrong-typed one, by proof.</p></div>
+      <div class="rc"><span class="pill bet">the bet</span><h3>Verified computation at scale</h3><p>Train on IR across a codebase's whole history, verifier in the loop, on MLIR as the universal substrate. A model whose edge over brute force compounds with problem hardness.</p></div>
     </div>
-  </section>
+  </div>
+</section>
 
-  <footer>
-    <div>Daybreak · nothing trusted, everything checked · built in a day</div>
-    <div style="margin-top:8px"><a href="./cpu.html">CPU cross-check demo</a> &nbsp;·&nbsp; <a href="./lens.html">Daybreak Lens</a></div>
-  </footer>
-</div>
+<!-- 10 CLOSE -->
+<section class="scene" data-nav="See it" id="s9">
+  <div class="inner" style="text-align:left">
+    <p class="eyebrow r">see it yourself</p>
+    <h2 class="big r d1">Nothing trusted.<br><span class="em">Everything checked.</span></h2>
+    <p class="sub r d2">Two live demos, built in a day, running in your browser right now.</p>
+    <div class="cta r d3">
+      <a class="go" href="./cpu.html" target="_blank" rel="noopener">The CPU cross-check →</a>
+      <a href="./lens.html" target="_blank" rel="noopener">Daybreak Lens →</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div>Daybreak · nothing trusted, everything checked · built in a day</div>
+  <div style="margin-top:8px"><a href="./cpu.html">CPU cross-check</a> · <a href="./lens.html">Daybreak Lens</a> · <a href="https://github.com/bajpainaman/daybreak-demo">source</a></div>
+</footer>
+
+<script>
+(() => {
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const QA = location.search.includes('qa');
+
+  /* ---- ambient Doom-fire in the hero (the same effect the CPU runs) ---- */
+  (() => {
+    const cv = document.getElementById('fire'); if(!cv) return;
+    const W=128,H=64,ctx=cv.getContext('2d'),img=ctx.createImageData(W,H);
+    const pal=[0x070707,0x1F0707,0x2F0F07,0x470F07,0x571707,0x671F07,0x771F07,0x8F2707,0x9F2F07,0xAF3F07,0xBF4707,0xC74707,0xDF4F07,0xDF5707,0xDF5707,0xD75F07,0xD75F07,0xD7670F,0xCF6F0F,0xCF770F,0xCF7F0F,0xCF8717,0xC78717,0xC78F17,0xC7971F,0xBF9F1F,0xBF9F1F,0xBFA727,0xBFA727,0xBFAF2F,0xB7AF2F,0xB7B72F,0xB7B737,0xCFCF6F,0xDFDF9F,0xEFEFC7,0xFFFFFF];
+    const fire=new Uint8Array(W*H); for(let x=0;x<W;x++) fire[(H-1)*W+x]=36;
+    let seed=0x2F6B1A93; const rnd=()=>{seed^=seed<<13;seed>>>=0;seed^=seed>>>17;seed^=seed<<5;seed>>>=0;return seed;};
+    let run=true; document.addEventListener('visibilitychange',()=>run=!document.hidden);
+    function step(){
+      for(let x=0;x<W;x++)for(let y=1;y<H;y++){const s=y*W+x,p=fire[s];if(p===0){fire[s-W]=0;}else{const r=rnd()&3;const d=s-r+1-W;if(d>=0&&d<W*H)fire[d]=p-(r&1);}}
+      const px=img.data; for(let i=0;i<W*H;i++){const c=pal[fire[i]]||0;px[4*i]=c>>16;px[4*i+1]=(c>>8)&255;px[4*i+2]=c&255;px[4*i+3]=255;}
+      ctx.putImageData(img,0,0);
+    }
+    if(reduce){step();} else { let t=0; (function loop(now){ if(run && now-t>55){step();t=now;} requestAnimationFrame(loop); })(0); }
+  })();
+
+  /* ---- reveal on scroll ---- */
+  if(QA){ document.querySelectorAll('.r').forEach(e=>e.classList.add('in')); if(location.hash){const _t=document.querySelector(location.hash); if(_t) setTimeout(()=>_t.scrollIntoView({block:'center'}),60);} document.querySelectorAll('[data-count]').forEach(e=>{const t=parseFloat(e.dataset.count);if(!isNaN(t))e.textContent=(Number.isInteger(t)?t.toLocaleString():t.toFixed(1))+(e.dataset.suffix||'');}); }
+  const io = new IntersectionObserver((es)=>{ for(const e of es) if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target);} }, {threshold:.15, rootMargin:'0px 0px -8% 0px'});
+  document.querySelectorAll('.r:not(.in)').forEach(el=>io.observe(el));
+
+  /* ---- count-up numbers ---- */
+  const fmt=(v)=> (Number.isInteger(v)? v.toLocaleString() : v.toFixed(1));
+  const cio = new IntersectionObserver((es)=>{ for(const e of es){ if(!e.isIntersecting) continue; const el=e.target; cio.unobserve(el);
+      const target=parseFloat(el.dataset.count), suf=el.dataset.suffix||''; if(isNaN(target)){continue;} if(reduce){el.textContent=fmt(target)+suf;continue;}
+      const dur=900, t0=performance.now(); (function tick(n){const p=Math.min(1,(n-t0)/dur); const e2=1-Math.pow(1-p,3); el.textContent=fmt(target*e2)+suf; if(p<1)requestAnimationFrame(tick);})(t0);
+    }}, {threshold:.6});
+  document.querySelectorAll('[data-count]').forEach(el=>cio.observe(el));
+
+  /* ---- lazy-load the embedded live demo when near ---- */
+  const dio = new IntersectionObserver((es)=>{ for(const e of es){ if(!e.isIntersecting) continue; const d=e.target; dio.unobserve(d);
+      const f=document.createElement('iframe'); f.src=d.dataset.embed; f.loading='lazy'; f.title='Daybreak live demo'; f.setAttribute('scrolling','no');
+      const ph=d.querySelector('.ph'); if(ph) ph.replaceWith(f); else d.appendChild(f);
+    }}, {rootMargin:'300px'});
+  document.querySelectorAll('.demo[data-embed]').forEach(d=>dio.observe(d));
+
+  /* ---- scaling chart (animated when in view) ---- */
+  (() => {
+    const g=document.getElementById('chartg'); if(!g) return;
+    const data=[ {L:2,space:5.3e5,model:6,rand:70},{L:3,space:3.9e8,model:4,rand:58},{L:4,space:6.6e11,model:5,rand:45},{L:5,space:5.9e14,model:12,rand:79},{L:6,space:1.7e18,model:5,rand:23} ];
+    const Wd=560,Hd=320,ml=52,mr=16,mt=16,mb=40, iw=Wd-ml-mr, ih=Hd-mt-mb;
+    const xs=i=> ml + (iw)*(i/(data.length-1));
+    const ySpace=v=> mt+ih - (Math.log10(v)-5)/(18.3-5)*ih;      // log scale for the space
+    const yCand=v=> mt+ih - Math.min(v,90)/90*ih;                // linear 0..90 for candidates
+    const NS='http://www.w3.org/2000/svg';
+    const mk=(t,a)=>{const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);return e;};
+    // grid + axis labels (powers of ten)
+    [5,8,11,14,18].forEach(p=>{ const y=ySpace(Math.pow(10,p)); g.appendChild(mk('line',{x1:ml,x2:Wd-mr,y1:y,y2:y,stroke:'#2d2320','stroke-width':1}));
+      const tx=mk('text',{x:ml-8,y:y+4,'text-anchor':'end','font-size':11}); tx.textContent='10^'+p; g.appendChild(tx); });
+    data.forEach((d,i)=>{ const tx=mk('text',{x:xs(i),y:Hd-16,'text-anchor':'middle','font-size':11}); tx.textContent='len '+d.L; g.appendChild(tx); });
+    // space line (the explosion)
+    const sp=mk('path',{fill:'none',stroke:'#6b5a50','stroke-width':2.5,'stroke-dasharray':'2 5','stroke-linecap':'round'});
+    sp.setAttribute('d', data.map((d,i)=>(i?'L':'M')+xs(i)+' '+ySpace(d.space)).join(' ')); g.appendChild(sp);
+    // candidate polylines
+    const mkline=(key,color,w)=>{ const p=mk('path',{fill:'none',stroke:color,'stroke-width':w,'stroke-linecap':'round','stroke-linejoin':'round'});
+      p.setAttribute('d', data.map((d,i)=>(i?'L':'M')+xs(i)+' '+yCand(d[key])).join(' ')); return p; };
+    const randL=mkline('rand','#a89a8d',2.5), modelL=mkline('model','#f4883a',3.5);
+    g.appendChild(randL); g.appendChild(modelL);
+    data.forEach((d,i)=>{ g.appendChild(mk('circle',{cx:xs(i),cy:yCand(d.rand),r:3,fill:'#a89a8d'}));
+      g.appendChild(mk('circle',{cx:xs(i),cy:yCand(d.model),r:4,fill:'#f4883a'})); });
+    // endpoint labels
+    const e1=mk('text',{x:xs(4)+4,y:ySpace(data[4].space)-6,'font-size':11,fill:'#8a7a6f'}); e1.textContent='1.7×10¹⁸'; g.appendChild(e1);
+    const e2=mk('text',{x:xs(4)-30,y:yCand(5)-10,'font-size':12,fill:'#f4883a'}); e2.textContent='~5'; g.appendChild(e2);
+    // animate draw when visible
+    if(!reduce){ [sp,randL,modelL].forEach(p=>{const len=p.getTotalLength?p.getTotalLength():600; p.style.strokeDasharray=p===sp?'2 5':len; if(p!==sp){p.style.strokeDashoffset=len;}});
+      new IntersectionObserver((es)=>{ for(const e of es) if(e.isIntersecting){ [randL,modelL].forEach((p,k)=>{p.style.transition=`stroke-dashoffset 1.1s ${.2+k*.25}s ease`; p.style.strokeDashoffset=0;}); this && 0; } }, {threshold:.4}).observe(document.querySelector('.chart'));
+    }
+  })();
+
+  /* ---- progress rail ---- */
+  const rail=document.querySelector('nav.rail'); const secs=[...document.querySelectorAll('[data-nav]')];
+  secs.forEach((s,i)=>{ s.id=s.id||('s'+i); const a=document.createElement('a'); a.href='#'+s.id; a.title=s.dataset.nav; a.setAttribute('aria-label',s.dataset.nav); rail.appendChild(a); });
+  const links=[...rail.children];
+  const nio=new IntersectionObserver((es)=>{ for(const e of es){ const i=secs.indexOf(e.target); if(i<0)continue; if(e.isIntersecting){ links.forEach(l=>l.classList.remove('on')); links[i].classList.add('on'); } } }, {threshold:.5});
+  secs.forEach(s=>nio.observe(s));
+})();
+</script>
 </body>
 </html>
