@@ -1,0 +1,512 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Daybreak Lens</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800&family=Martian+Mono:wght@400;500&family=Schibsted+Grotesk:wght@400;500;600&display=swap">
+<style>
+  /* Layout: the code is the page. Left, the program with every token tinted by how surprising it
+     is to a model of this codebase; right, what the model would write instead, and the checks
+     that decide whether to believe it. Same visual world as the Daybreak CPU page. */
+  :root {
+    color-scheme: dark;
+    --soot: #0f0c0b;
+    --kiln: #181210;
+    --seam: #2d2320;
+    --ash: #eee6dc;
+    --cinder: #a39488;
+    --ember: #f08a3c;
+    --ok: #86d18c;
+    --bad: #ff6a5c;
+    --display: "Big Shoulders Display", "Arial Narrow", Impact, sans-serif;
+    --body: "Schibsted Grotesk", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    --mono: "Martian Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  }
+  html, body { background: var(--soot); color: var(--ash); }
+  body { font-family: var(--body); font-size: 15px; line-height: 1.5; }
+  .stage { max-width: 92rem; margin-inline: auto; padding-inline: clamp(16px, 3vw, 40px); padding-block: 28px 56px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 26px; }
+  .stage > * { min-width: 0; }
+
+  header { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 12px 28px; }
+  .mark { font-family: var(--display); font-weight: 800; font-size: clamp(44px, 7vw, 84px); line-height: .9; letter-spacing: .02em; margin: 0; text-transform: uppercase; }
+  .mark span { color: var(--ember); }
+  .tag { margin: 8px 0 0; font-size: clamp(16px, 1.6vw, 20px); max-width: 46ch; text-wrap: balance; }
+  .facts { display: flex; flex-wrap: wrap; gap: 10px 28px; }
+  .fact { display: grid; gap: 0; }
+  .fact .v { font-family: var(--display); font-weight: 800; font-size: clamp(28px, 3.4vw, 44px); line-height: 1; font-variant-numeric: tabular-nums; }
+  .fact .k { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--cinder); }
+
+  .bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .bar .label { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--cinder); margin-right: 4px; }
+  button, .file { font: 500 13px/1 var(--body); color: var(--ash); background: transparent; border: 1px solid var(--seam); border-radius: 999px; padding: 9px 14px; cursor: pointer; }
+  button:hover, .file:hover { border-color: var(--cinder); }
+  button:focus-visible, .file:focus-within { outline: 2px solid var(--ember); outline-offset: 2px; }
+  button[aria-pressed="true"] { border-color: var(--ember); color: var(--ember); }
+  button.go { border-color: var(--ember); background: color-mix(in srgb, var(--ember) 14%, transparent); color: var(--ash); font-weight: 600; }
+  button:disabled { opacity: .45; cursor: not-allowed; }
+  .chips button { font: 400 12px/1.2 var(--mono); border-radius: 4px; padding: 7px 9px; }
+  .file input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+  select { font: 400 12px/1 var(--mono); color: var(--ash); background: var(--kiln); border: 1px solid var(--seam); border-radius: 4px; padding: 8px; max-width: 100%; }
+
+  .split { display: grid; gap: 22px; grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr); align-items: start; }
+  @media (max-width: 1000px) { .split { grid-template-columns: minmax(0, 1fr); } }
+
+  .viewer { background: var(--kiln); border: 1px solid var(--seam); border-radius: 6px; min-width: 0; display: grid; }
+  .viewer-head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px 16px; padding: 10px 14px; border-bottom: 1px solid var(--seam); font-family: var(--mono); font-size: 12px; color: var(--cinder); }
+  .viewer-head b { color: var(--ash); font-weight: 500; }
+  .code { margin: 0; overflow: auto; max-height: 68vh; font: 12.5px/1.65 var(--mono); padding: 10px 0; tab-size: 2; }
+  .row { display: grid; grid-template-columns: 3.6em 5px minmax(0, 1fr); gap: 10px; padding-right: 14px; white-space: pre; }
+  .row.focus { background: color-mix(in srgb, var(--bad) 12%, transparent); }
+  .row.fixed { background: color-mix(in srgb, var(--ok) 12%, transparent); }
+  .ln { color: color-mix(in srgb, var(--cinder) 70%, transparent); text-align: right; user-select: none; }
+  .gut { align-self: stretch; border-radius: 2px; }
+  .tok { border-radius: 2px; cursor: default; }
+  .tok.flag { box-shadow: inset 0 -2px 0 var(--bad); }
+  .tok.cmt { color: color-mix(in srgb, var(--cinder) 75%, transparent); }
+  textarea#editor { width: 100%; min-height: 60vh; box-sizing: border-box; resize: vertical; background: var(--soot); color: var(--ash); border: 0; padding: 12px 14px; font: 12.5px/1.65 var(--mono); }
+
+  .tip { position: fixed; z-index: 10; pointer-events: none; background: #1d1714; border: 1px solid var(--seam); border-radius: 6px; padding: 10px 12px; font: 12px/1.45 var(--mono); min-width: 15rem; max-width: 22rem; box-shadow: 0 8px 28px rgb(0 0 0 / .5); }
+  .tip .head { color: var(--ash); margin-bottom: 6px; }
+  .tip .head .p { color: var(--ember); }
+  .tip .alt { display: grid; grid-template-columns: minmax(0, 7em) minmax(0, 1fr) 3.4em; gap: 8px; align-items: center; }
+  .tip .alt span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: pre; }
+  .tip .alt .meter { height: 6px; border-radius: 3px; background: var(--seam); overflow: hidden; }
+  .tip .alt .meter i { display: block; height: 100%; background: var(--ember); }
+  .tip .alt.me span:first-child { color: var(--ember); }
+  .tip .note { color: var(--cinder); margin-top: 6px; }
+
+  .side { display: grid; gap: 18px; min-width: 0; align-content: start; }
+  .card { background: var(--kiln); border: 1px solid var(--seam); border-radius: 6px; padding: 14px 16px; display: grid; gap: 10px; min-width: 0; }
+  .card h2 { font-family: var(--display); font-weight: 700; font-size: 22px; letter-spacing: .03em; text-transform: uppercase; margin: 0; }
+  .card p { margin: 0; color: var(--cinder); font-size: 14px; }
+  ol.sus { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; font: 12px/1.45 var(--mono); }
+  ol.sus li { display: grid; grid-template-columns: 3.4em minmax(0, 1fr) auto; gap: 8px; padding: 5px 6px; border-radius: 4px; cursor: pointer; }
+  ol.sus li:hover { background: color-mix(in srgb, var(--ash) 6%, transparent); }
+  ol.sus li .why { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  ol.sus li .why b { color: var(--bad); font-weight: 500; }
+  ol.sus li .why i { color: var(--ok); font-style: normal; }
+  ol.sus li .g { color: var(--cinder); }
+  ol.sus li.truth { outline: 1px dashed color-mix(in srgb, var(--ember) 60%, transparent); }
+  .log { font: 12px/1.6 var(--mono); display: grid; gap: 2px; max-height: 15rem; overflow: auto; }
+  .log .x { color: var(--cinder); }
+  .log .x b { color: var(--bad); font-weight: 400; }
+  .log .ok { color: var(--ok); }
+  .verdict { font: 12px/1.6 var(--mono); border-radius: 4px; padding: 10px 12px; border: 1px solid var(--seam); white-space: pre-wrap; word-break: break-word; }
+  .verdict.ok { border-color: color-mix(in srgb, var(--ok) 50%, var(--seam)); }
+  .verdict.bad { border-color: color-mix(in srgb, var(--bad) 50%, var(--seam)); }
+  .legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 12px; color: var(--cinder); align-items: center; }
+  .legend .sw { display: inline-block; width: 1.4em; height: .9em; border-radius: 2px; vertical-align: -1px; margin-right: 4px; }
+
+  .story { display: grid; gap: 28px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 21rem), 1fr)); }
+  .story section { display: grid; gap: 10px; align-content: start; min-width: 0; }
+  .story h2 { font-family: var(--display); font-weight: 700; font-size: 26px; letter-spacing: .03em; text-transform: uppercase; margin: 0; }
+  .story p { margin: 0; color: var(--cinder); max-width: 62ch; }
+  .story p b { color: var(--ash); font-weight: 500; }
+  .muted { color: var(--cinder); }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+
+
+<div class="stage">
+  <header>
+    <div>
+      <h1 class="mark">Day<span>break</span> Lens</h1>
+      <p class="tag">Learns how a codebase is usually written, then shows every token it finds surprising, what it would write instead, and whether the checks agree.</p>
+    </div>
+    <div class="facts" aria-live="polite">
+      <div class="fact"><span class="v" id="f-train">—</span><span class="k">to train, in this browser</span></div>
+      <div class="fact"><span class="v" id="f-tokens">—</span><span class="k">tokens learned</span></div>
+      <div class="fact"><span class="v">$0</span><span class="k">no GPU, no LLM</span></div>
+    </div>
+  </header>
+
+  <div class="bar">
+    <span class="label">Plant a bug in emulator B</span>
+    <div class="chips bar" id="chips"></div>
+  </div>
+  <div class="bar">
+    <span class="label">Or bring your own</span>
+    <label class="file">Import a folder<input type="file" id="folder" webkitdirectory multiple></label>
+    <label class="file">Import files<input type="file" id="files" multiple></label>
+    <button type="button" id="edit">Edit this code</button>
+    <select id="pick" aria-label="File to inspect" hidden></select>
+  </div>
+
+  <div class="split">
+    <div class="viewer">
+      <div class="viewer-head">
+        <span id="v-file">—</span>
+        <span class="legend">
+          <span><span class="sw" style="background: color-mix(in srgb, var(--ember) 10%, transparent)"></span>expected</span>
+          <span><span class="sw" style="background: color-mix(in srgb, var(--ember) 45%, transparent)"></span>surprising</span>
+          <span><span class="sw" style="box-shadow: inset 0 -2px 0 var(--bad)"></span>suspect</span>
+        </span>
+      </div>
+      <pre class="code" id="code" aria-label="Source code, tinted by surprise"></pre>
+      <textarea id="editor" spellcheck="false" hidden aria-label="Edit the code"></textarea>
+    </div>
+
+    <div class="side">
+      <div class="card">
+        <h2>Most suspicious lines</h2>
+        <p id="sus-note">Each line's most surprising token, and the token this codebase would usually write there.</p>
+        <ol class="sus" id="sus"></ol>
+      </div>
+      <div class="card" id="repair-card">
+        <h2>Find, fix, prove</h2>
+        <p id="repair-note">Try the model's suggestions, most natural first. Each one is run against emulator A, an independent implementation of the same spec. The first edit that passes every check wins.</p>
+        <div class="bar"><button type="button" class="go" id="repair">Find, fix, prove</button></div>
+        <div class="log" id="log" aria-live="polite"></div>
+        <div class="verdict" id="verdict" hidden></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="story">
+    <section>
+      <h2>Quick, good, cheap</h2>
+      <p id="story-quick">Training is counting: every token after every short run of tokens, across the whole codebase.</p>
+      <p id="story-good">A suggestion is only a guess until a check agrees.</p>
+    </section>
+    <section>
+      <h2>Where it stops</h2>
+      <p>The model learns habits, and habits are not intentions. Correct code that is merely unusual looks suspicious, and a bug that follows a common pattern looks normal. It can only propose one-token edits, so bugs that need a missing line or two lines swapped are <b>flagged, not fixed</b>. Nothing it suggests is applied without a check.</p>
+    </section>
+    <section>
+      <h2>Where it goes</h2>
+      <p><b>The spec becomes the program.</b> Daybreak's CPU was a spec this morning; independent builders implemented it, and their cross-check is what made the code correct. Write the spec and the checks, and implementations become replaceable.</p>
+      <p><b>CI becomes a lookup.</b> The habits are indexed once. Every change is checked against the index in milliseconds, and a fix is the index's best alternative, kept only if the checks pass.</p>
+    </section>
+  </div>
+</div>
+
+<script type="module">
+import { Lens, tokenize } from "./lens.mjs";
+import { BUGS, applyBug } from "./bugs.mjs";
+import { FILES, REPAIR } from "./lens-data.js";
+
+const $ = (id) => document.getElementById(id);
+const fmt = new Intl.NumberFormat("en-US");
+const FLAG_BITS = 12;        // a token whose best alternative makes its window this many bits likelier is a suspect
+const SUSPECTS = 12;         // lines listed
+const TRIES = 1000;          // repair edits tried before giving up
+const TEXT_EXT = /\.(js|mjs|cjs|ts|tsx|jsx|py|rs|go|c|h|cc|cpp|hpp|java|kt|swift|rb|php|cs|scala|sol|vx|lua|sh|zig|nim|ml|hs|ex|exs|erl|dart|m|mm|s)$/i;
+const MAX_FILE = 400_000;    // bytes; bigger files are skipped on import
+
+// ---- state
+let lens = null, files = {}, current = "emu_b.js", source = "", scored = [], ranked = [], bugIndex = -1, truthLine = null;
+const clean = FILES["emu_b.js"];
+
+function train(fileMap) {
+  const t0 = performance.now();
+  const l = new Lens();
+  for (const [name, text] of Object.entries(fileMap)) l.train(text, name);
+  const ms = performance.now() - t0;
+  lens = l;
+  $("f-train").textContent = ms < 1000 ? `${Math.max(1, Math.round(ms))} ms` : `${(ms / 1000).toFixed(1)} s`;
+  $("f-tokens").textContent = fmt.format(l.tokens);
+  return { l, ms };
+}
+
+// ---- rendering: one row per line, one span per token, tinted by surprise
+function heat(bits) {
+  const a = Math.max(0, Math.min(0.55, (bits - 3) / 22));
+  return a < 0.04 ? "" : `color-mix(in srgb, var(--ember) ${Math.round(a * 100)}%, transparent)`;
+}
+
+function render(focusLine = null, fixedLine = null) {
+  const code = $("code");
+  code.textContent = "";
+  const lineGain = new Map(ranked.map((r) => [r.line, r.gain]));
+  const maxGain = Math.max(1, ...ranked.slice(0, SUSPECTS).map((r) => r.gain));
+  const lines = source.split("\n");
+  let k = 0, offset = 0;
+  const frag = document.createDocumentFragment();
+  lines.forEach((text, i) => {
+    const n = i + 1, end = offset + text.length;
+    const row = document.createElement("div");
+    row.className = "row" + (n === focusLine ? " focus" : "") + (n === fixedLine ? " fixed" : "");
+    row.dataset.line = n;
+    const ln = document.createElement("span");
+    ln.className = "ln";
+    ln.textContent = n;
+    const gut = document.createElement("span");
+    gut.className = "gut";
+    const g = lineGain.get(n) ?? 0;
+    if (g >= FLAG_BITS) gut.style.background = `color-mix(in srgb, var(--bad) ${Math.round(30 + 70 * Math.min(1, g / maxGain))}%, transparent)`;
+    const body = document.createElement("span");
+    let at = offset;
+    while (k < scored.length && scored[k].start < end + 1) {
+      const t = scored[k];
+      if (t.start > at) body.append(source.slice(at, t.start));
+      const s = document.createElement("span");
+      s.className = "tok" + (t.model ? "" : " cmt") + (t.model && t.gain >= FLAG_BITS ? " flag" : "");
+      s.textContent = source.slice(t.start, Math.min(t.end, end));
+      if (t.model) { s.style.background = heat(t.bits); s.dataset.k = k; }
+      body.append(s);
+      at = t.end;
+      k++;
+      if (t.end > end) break;
+    }
+    if (at < end) body.append(source.slice(at, end));
+    row.append(ln, gut, body);
+    frag.append(row);
+    offset = end + 1;
+  });
+  code.append(frag);
+}
+
+function rescore() {
+  scored = lens.score(source, files[current] === source ? current : null);
+  ranked = lens.lines(source, scored);
+  const list = $("sus");
+  list.textContent = "";
+  for (const r of ranked.slice(0, SUSPECTS)) {
+    if (!r.token) continue;
+    const li = document.createElement("li");
+    if (r.line === truthLine) li.className = "truth";
+    const ln = Object.assign(document.createElement("span"), { textContent: `L${r.line}` });
+    const why = document.createElement("span");
+    why.className = "why";
+    why.append(Object.assign(document.createElement("b"), { textContent: r.token.text }), " → ",
+      Object.assign(document.createElement("i"), { textContent: r.token.fix ?? "?" }));
+    const g = Object.assign(document.createElement("span"), { className: "g", textContent: `+${r.gain.toFixed(0)} bits` });
+    li.append(ln, why, g);
+    li.addEventListener("click", () => jump(r.line));
+    list.append(li);
+  }
+  render(truthLine);
+}
+
+// Scroll the code panel, not the page: the numbers at the top stay in view.
+function jump(line) {
+  const code = $("code"), row = code.querySelector(`[data-line="${line}"]`);
+  if (row) code.scrollTo({ top: row.offsetTop - code.offsetTop - code.clientHeight / 2, behavior: "smooth" });
+}
+
+// ---- hover: the model's view of one token, like a playground's token probabilities
+const tip = Object.assign(document.createElement("div"), { className: "tip", hidden: true });
+document.body.append(tip);
+$("code").addEventListener("mousemove", (ev) => {
+  const el = ev.target.closest(".tok[data-k]");
+  if (!el) { tip.hidden = true; return; }
+  const t = scored[+el.dataset.k];
+  tip.textContent = "";
+  const head = document.createElement("div");
+  head.className = "head";
+  head.append(JSON.stringify(t.text), "  ", Object.assign(document.createElement("span"), { className: "p", textContent: pct(t.prob) }));
+  tip.append(head);
+  const shown = t.top.some(([w]) => w === t.text) ? t.top : [...t.top.slice(0, 4), [t.text, t.prob]];
+  const max = Math.max(...shown.map(([, p]) => p));
+  for (const [w, p] of shown) {
+    const row = document.createElement("div");
+    row.className = "alt" + (w === t.text ? " me" : "");
+    const meter = document.createElement("span");
+    meter.className = "meter";
+    const fill = document.createElement("i");
+    fill.style.width = `${Math.max(2, (p / max) * 100)}%`;
+    meter.append(fill);
+    row.append(Object.assign(document.createElement("span"), { textContent: w }), meter, Object.assign(document.createElement("span"), { textContent: pct(p) }));
+    tip.append(row);
+  }
+  const note = document.createElement("div");
+  note.className = "note";
+  note.textContent = t.fix !== null && t.gain >= FLAG_BITS
+    ? `Suspect: with ${JSON.stringify(t.fix)} here, the surrounding code is ${fmtGain(t.gain)} more likely.`
+    : `${t.bits.toFixed(1)} bits of surprise.`;
+  tip.append(note);
+  tip.hidden = false;
+  const x = Math.min(ev.clientX + 14, innerWidth - tip.offsetWidth - 8), y = Math.min(ev.clientY + 16, innerHeight - tip.offsetHeight - 8);
+  tip.style.left = `${x}px`;
+  tip.style.top = `${y}px`;
+});
+$("code").addEventListener("mouseleave", () => { tip.hidden = true; });
+const pct = (p) => p >= 0.1 ? `${(p * 100).toFixed(0)}%` : p >= 0.001 ? `${(p * 100).toFixed(1)}%` : "<0.1%";
+const fmtGain = (bits) => bits > 30 ? "more than a billion times" : `${fmt.format(Math.round(2 ** bits))} times`;
+
+// ---- the planted-bug demo
+function show(name, text) {
+  current = name;
+  source = text;
+  $("v-file").textContent = "";
+  const b = document.createElement("b");
+  b.textContent = name;
+  $("v-file").append(b, ` · ${fmt.format(text.split("\n").length)} lines`);
+  rescore();
+}
+
+function plant(i) {
+  bugIndex = i;
+  const text = i < 0 ? clean : applyBug(clean, BUGS[i]);
+  files = { ...FILES, "emu_b.js": text };
+  const { ms } = train(files);
+  truthLine = i < 0 ? null : text.slice(0, clean.indexOf(BUGS[i][1])).split("\n").length;
+  show("emu_b.js", text);
+  $("repair-card").hidden = false;
+  $("log").textContent = "";
+  $("verdict").hidden = true;
+  $("repair").disabled = i < 0;
+  $("story-quick").textContent = "";
+  $("story-quick").append("Training is counting: every token after every short run of tokens. This codebase, ",
+    strong(`${fmt.format(lens.tokens)} tokens in ${Object.keys(files).length} files`), `, trained in `,
+    strong(`${Math.max(1, Math.round(ms))} ms`), " in this browser, with no GPU and no LLM. Nothing leaves the page.");
+  document.querySelectorAll("#chips button").forEach((b2, j) => b2.setAttribute("aria-pressed", String(j - 1 === i)));
+  if (truthLine) jump(truthLine);
+}
+const strong = (text) => Object.assign(document.createElement("b"), { textContent: text });
+
+const chips = $("chips");
+const chip = (label, i) => {
+  const b = document.createElement("button");
+  b.type = "button";
+  b.textContent = label;
+  b.addEventListener("click", () => plant(i));
+  chips.append(b);
+};
+chip("No bug", -1);
+BUGS.forEach(([name], i) => chip(name, i));
+
+// ---- find, fix, prove: try edits in order of how natural they make the code
+let canLoad = null;
+async function moduleFrom(text) {
+  const url = URL.createObjectURL(new Blob([text], { type: "text/javascript" }));
+  try { return (await import(url)).Machine; } finally { URL.revokeObjectURL(url); }
+}
+async function liveRepair() {
+  const [{ crossCheck }, { Machine: A }] = await Promise.all([import("./crosscheck.mjs"), import("./emu_a.js")]);
+  const edits = scored.filter((t) => t.model).flatMap((t) => t.alts.map(([w, gain]) => ({ t, w, gain }))).sort((x, y) => y.gain - x.gain);
+  const log = $("log");
+  let tries = 0, instructions = 0;
+  const t0 = performance.now();
+  for (const { t, w } of edits.slice(0, TRIES)) {
+    tries++;
+    const patched = source.slice(0, t.start) + w + source.slice(t.end);
+    const line = source.slice(0, t.start).split("\n").length;
+    let v;
+    try { v = crossCheck(A, await moduleFrom(patched), { programs: 300 }); }
+    catch (e) { v = { ok: false, where: "the edited file does not run", instructions: 0 }; }
+    instructions += v.instructions;
+    addLog(v.ok, line, t.text, w, v.where);
+    if (tries % 8 === 0) await new Promise(requestAnimationFrame);
+    if (v.ok) return done(true, { tries, ms: performance.now() - t0, line, from: t.text, to: w, patched, instructions });
+  }
+  return done(false, { tries, ms: performance.now() - t0, instructions });
+}
+function replayRepair() {
+  const run = REPAIR?.results?.[bugIndex];
+  if (!run) return done(false, { tries: 0, ms: 0, instructions: 0, recorded: true });
+  let i = 0;
+  const step = () => {
+    for (let k = 0; k < 6 && i < run.log.length; k++, i++) {
+      const e = run.log[i];
+      addLog(e.ok, e.line, e.from, e.to, e.where);
+      if (e.ok) {
+        const t = scored.find((x) => x.model && source.slice(0, x.start).split("\n").length === e.line && x.text === e.from);
+        const patched = t ? source.slice(0, t.start) + e.to + source.slice(t.end) : source;
+        return done(true, { tries: i + 1, ms: run.trainScoreMs + run.repairMs, line: e.line, from: e.from, to: e.to, patched, recorded: true });
+      }
+    }
+    if (i < run.log.length) requestAnimationFrame(step);
+    else done(false, { tries: run.log.length, ms: run.repairMs, recorded: true });
+  };
+  step();
+}
+function addLog(ok, line, from, to, where) {
+  const d = document.createElement("div");
+  d.className = ok ? "ok" : "x";
+  if (ok) d.textContent = `✓ L${line}  ${from} → ${to}   passes every check`;
+  else { d.append(`✗ L${line}  ${from} → ${to}   `, Object.assign(document.createElement("b"), { textContent: shortWhere(where) })); }
+  $("log").prepend(d);
+}
+const shortWhere = (w) => (w ?? "").replace(/^program (\d+), instruction (\d+):.*/, "differs from A, program $1, instr. $2").replace(/^probe /, "fails probe ").slice(0, 60);
+function done(ok, r) {
+  const v = $("verdict");
+  v.hidden = false;
+  v.className = "verdict " + (ok ? "ok" : "bad");
+  const how = r.recorded ? " (recorded run on a Mac)" : "";
+  if (ok) {
+    const exact = r.patched === clean;
+    v.textContent = `Fixed and proven in ${r.tries} tries, ${(r.ms / 1000).toFixed(1)} s${how}.\nL${r.line}: ${r.from} → ${r.to}` +
+      (exact ? "\nThat restores the original line exactly." : "\nA different edit from the original line, and it passes every check too.") +
+      (r.instructions ? `\n${fmt.format(r.instructions)} instructions cross-checked along the way.` : "");
+    source = r.patched;
+    scored = lens.score(source, null);
+    ranked = lens.lines(source, scored);
+    render(null, r.line);
+    jump(r.line);
+  } else {
+    v.textContent = `No one-token edit among the first ${r.tries} passes the checks${how}.\nThis bug needs more than one token changed: it stays flagged for a person.`;
+  }
+  $("repair").disabled = false;
+}
+$("repair").addEventListener("click", async () => {
+  $("repair").disabled = true;
+  $("log").textContent = "";
+  $("verdict").hidden = true;
+  if (canLoad === null) {
+    try { await moduleFrom("export class Machine {}"); canLoad = true; } catch { canLoad = false; }
+  }
+  if (canLoad) await liveRepair(); else replayRepair();
+});
+
+// ---- bring your own code
+async function importFiles(list) {
+  const map = {};
+  let skipped = 0;
+  for (const f of list) {
+    const name = f.webkitRelativePath || f.name;
+    if (!TEXT_EXT.test(name) || f.size > MAX_FILE || /(^|\/)(node_modules|\.git|target|dist|build)\//.test(name)) { skipped++; continue; }
+    map[name] = await f.text();
+  }
+  const names = Object.keys(map);
+  if (!names.length) { $("v-file").textContent = `No source files found (${skipped} skipped).`; return; }
+  files = map;
+  bugIndex = -1;
+  truthLine = null;
+  train(files);
+  const pick = $("pick");
+  pick.textContent = "";
+  for (const n of names.sort()) pick.append(Object.assign(document.createElement("option"), { value: n, textContent: n }));
+  pick.hidden = false;
+  $("repair-card").hidden = true;
+  document.querySelectorAll("#chips button").forEach((b) => b.setAttribute("aria-pressed", "false"));
+  $("story-quick").textContent = "";
+  $("story-quick").append("Your code: ", strong(`${fmt.format(lens.tokens)} tokens in ${names.length} files`),
+    " learned in this browser. Hover any token for what the model expected; the red-marked ones are its suspects.");
+  // Open the file with the most suspicious line.
+  show(names[0], files[names[0]]);
+}
+$("folder").addEventListener("change", (e) => importFiles([...e.target.files]));
+$("files").addEventListener("change", (e) => importFiles([...e.target.files]));
+$("pick").addEventListener("change", (e) => show(e.target.value, files[e.target.value]));
+
+$("edit").addEventListener("click", () => {
+  const ed = $("editor"), editing = !ed.hidden;
+  if (editing) {
+    source = ed.value;
+    ed.hidden = true;
+    $("code").hidden = false;
+    $("edit").textContent = "Edit this code";
+    rescore();
+  } else {
+    ed.value = source;
+    ed.hidden = false;
+    $("code").hidden = true;
+    $("edit").textContent = "Score my edit";
+    ed.focus();
+  }
+});
+
+plant(BUGS.findIndex(([n]) => n.startsWith("BGE")));
+const sGood = REPAIR ? `In the recorded run, ${REPAIR.fixed} of ${REPAIR.bugs} planted bugs were found, fixed and proven with no help: ` +
+  `${REPAIR.exact} by restoring the original line, ${REPAIR.fixed - REPAIR.exact} with a different edit that also passes every check.` : "";
+$("story-good").textContent = `A suggestion is only a guess until a check agrees. ${sGood}`;
+</script>
+
+</body>
+</html>
