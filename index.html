@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Daybreak</title>
 <meta name="description" content="Verified computation. Nothing trusted, everything checked. A verifier trains the model, proves every output, and generates the data.">
+<meta name="theme-color" content="#0d0a09">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;700;800&family=Martian+Mono:wght@400;500&family=Schibsted+Grotesk:wght@400;500;600;700&display=swap">
@@ -63,7 +64,7 @@
 
   /* progress rail */
   nav.rail { position:fixed; right:18px; top:50%; transform:translateY(-50%); z-index:40; display:grid; gap:12px; }
-  nav.rail a { width:9px; height:9px; border-radius:50%; border:1px solid var(--seam); background:transparent; display:block; transition:.25s; }
+  nav.rail a { width:9px; height:9px; border-radius:50%; border:1px solid var(--seam); background:transparent; display:block; transition:background .25s, border-color .25s, transform .25s; }
   nav.rail a:hover{ border-color:var(--cinder); }
   nav.rail a.on { background:var(--ember); border-color:var(--ember); transform:scale(1.25); }
   @media (max-width:760px){ nav.rail{display:none} }
@@ -180,7 +181,7 @@
   header.top .sec{ font:500 11px/1 var(--mono); letter-spacing:.18em; text-transform:uppercase; color:var(--cinder); }
   header.top .sec b{ color:var(--ash); font-weight:500; }
   header.top .demos{ margin-left:auto; font:600 13px/1 var(--body); color:var(--ash);
-    border:1px solid var(--seam); border-radius:999px; padding:10px 17px; transition:.3s; }
+    border:1px solid var(--seam); border-radius:999px; padding:10px 17px; transition:border-color .3s, background .3s; }
   header.top .demos:hover{ border-color:var(--ember); background:color-mix(in srgb,var(--ember) 12%,transparent); }
   @media (max-width:560px){ header.top .sec{ display:none; } }
 
@@ -194,15 +195,29 @@
   @keyframes flow{ 0%,100%{ opacity:.5; transform:translateX(0); } 50%{ opacity:1; transform:translateX(6px); } }
   @media (max-width:720px){ @keyframes flow{ 0%,100%{opacity:.5;transform:rotate(90deg) translateX(0)} 50%{opacity:1;transform:rotate(90deg) translateX(6px)} } }
   @media (prefers-reduced-motion:reduce){ .loop .arrow{ animation:none; } }
+
+  /* ------------------------------ a11y + interaction (web interface guidelines) ------------------------------ */
+  a{ touch-action:manipulation; -webkit-tap-highlight-color:color-mix(in srgb,var(--ember) 28%,transparent); }
+  a:hover{ color:var(--ember2); }
+  footer a:hover, .mono-note a:hover{ text-decoration:underline; text-underline-offset:3px; }
+  a:focus-visible, button:focus-visible, [tabindex]:focus-visible{ outline:2px solid var(--ember); outline-offset:3px; border-radius:4px; }
+  nav.rail a:focus-visible{ outline-offset:4px; }
+  .scene, #hero{ scroll-margin-top:72px; }                    /* anchor targets clear the sticky bar */
+  header.top{ padding-top:calc(13px + env(safe-area-inset-top, 0px)); }   /* full-bleed safe area */
+  .skip{ position:fixed; left:12px; top:-72px; z-index:80; background:var(--kiln); color:var(--ash);
+    border:1px solid var(--ember); border-radius:8px; padding:11px 16px; font:600 14px/1 var(--body);
+    transition:top .2s; }
+  .skip:focus{ top:calc(12px + env(safe-area-inset-top, 0px)); }
 </style>
 </head>
 <body>
+<a class="skip" href="#s1">Skip to content</a>
 <div class="grain" aria-hidden="true"></div>
-<div id="progress"></div>
-<header class="top" aria-hidden="true">
+<div id="progress" aria-hidden="true"></div>
+<header class="top">
   <span class="wm">Day<i>break</i></span>
   <span class="sec">— <b>Daybreak</b></span>
-  <a class="demos" href="./cpu.html" target="_blank" rel="noopener">demos ↗</a>
+  <a class="demos" href="./cpu.html" target="_blank" rel="noopener">demos <span aria-hidden="true">↗</span></a>
 </header>
 
 <nav class="rail" aria-label="Sections"></nav>
@@ -221,8 +236,8 @@
 <section class="scene" data-nav="The gap" id="s1">
   <div class="inner">
     <p class="eyebrow r">the gap</p>
-    <h2 class="big r d1">AI can <span class="em">compute</span>.<br>It can't <span class="em">prove</span> it's right.</h2>
-    <p class="lede r d2">Models generate code, answers, whole programs — and we check them by vibes. At the scale AI now writes software, "looks correct" is not a foundation. One wrong register, one skipped validation, one silent overflow, and trust is gone.</p>
+    <h2 class="big r d1">AI can <span class="em">compute</span>.<br>It can’t <span class="em">prove</span> it’s right.</h2>
+    <p class="lede r d2">Models generate code, answers, whole programs — and we check them by vibes. At the scale AI now writes software, “looks correct” is not a foundation. One wrong register, one skipped validation, one silent overflow, and trust is gone.</p>
     <p class="sub r d3">The frontier is racing to make models that write more. Daybreak makes computation you can <b style="color:var(--ash)">prove</b>.</p>
   </div>
 </section>
@@ -232,11 +247,11 @@
   <div class="inner">
     <p class="eyebrow r">the idea</p>
     <h2 class="kicker r d1">Propose. Verify.<br>Nothing trusted.</h2>
-    <p class="sub r d2">One loop under everything we built. The model proposes; an exact checker — a compiler, a test, a proof, an independent twin — decides. The verifier isn't just the judge. It's also the <b style="color:var(--ash)">teacher</b> and the <b style="color:var(--ash)">data source</b>.</p>
+    <p class="sub r d2">One loop under everything we built. The model proposes; an exact checker — a compiler, a test, a proof, an independent twin — decides. The verifier isn’t just the judge. It's also the <b style="color:var(--ash)">teacher</b> and the <b style="color:var(--ash)">data source</b>.</p>
     <div class="loop r d3">
       <div class="node"><h3>Propose</h3><p>A model (or a search) suggests a program, a fix, an edit.</p></div>
       <div class="arrow">→</div>
-      <div class="node v"><h3>Verify</h3><p>Compile it. Run the test. Prove it with Z3. Diff it against an independent build. A 0/1 that can't be gamed.</p></div>
+      <div class="node v"><h3>Verify</h3><p>Compile it. Run the test. Prove it with Z3. Diff it against an independent build. A 0/1 that can’t be gamed.</p></div>
       <div class="arrow">→</div>
       <div class="node"><h3>Keep &amp; learn</h3><p>Only proven outputs survive — and every check becomes training signal.</p></div>
     </div>
@@ -248,8 +263,8 @@
 <section class="scene" data-nav="Born today" id="s3">
   <div class="inner">
     <p class="eyebrow r">proof i · hardware born today</p>
-    <h2 class="kicker r d1">A CPU that didn't<br>exist this morning.</h2>
-    <p class="sub r d2">One agent wrote a new instruction set. Others, each seeing only that spec, built two emulators, an assembler and the programs — none saw another's code. The two emulators are compared after <b style="color:var(--ash)">every single instruction</b>. Doom's fire runs live below; every frame is matched pixel-for-pixel against an independent reference.</p>
+    <h2 class="kicker r d1">A CPU that didn’t<br>exist this morning.</h2>
+    <p class="sub r d2">One agent wrote a new instruction set. Others, each seeing only that spec, built two emulators, an assembler and the programs — none saw another’s code. The two emulators are compared after <b style="color:var(--ash)">every single instruction</b>. Doom’s fire runs live below; every frame is matched pixel-for-pixel against an independent reference.</p>
     <div class="tiles r d3">
       <div class="tile"><span class="n ok" data-count="0">0</span><span class="k">mismatches across 71M+ instructions cross-checked</span></div>
       <div class="tile"><span class="n" data-count="14" data-suffix="/14">14/14</span><span class="k">planted bugs caught by the cross-check</span></div>
@@ -268,7 +283,7 @@
   <div class="inner">
     <p class="eyebrow r">proof ii · accurate bug finding on real code</p>
     <h2 class="kicker r d1">Every fix becomes<br>a verified detector.</h2>
-    <p class="sub r d2">We pointed it at <b style="color:var(--ash)">reth</b> — Paradigm's Ethereum client, ~460k lines. Every <code style="color:var(--ember)">fix(</code> commit is a free, maintainer-labeled bug. Daybreak reverts the fix, keeps its test, rebuilds and runs — settling by compile-and-run whether a test truly guards each bug. No LLM. No fuzzing. It even caught its own false positives.</p>
+    <p class="sub r d2">We pointed it at <b style="color:var(--ash)">reth</b> — Paradigm’s Ethereum client, ~460k lines. Every <code style="color:var(--ember)">fix(</code> commit is a free, maintainer-labeled bug. Daybreak reverts the fix, keeps its test, rebuilds and runs — settling by compile-and-run whether a test truly guards each bug. No LLM. No fuzzing. It even caught its own false positives.</p>
     <div class="tiles r d3">
       <div class="tile"><span class="n ok" data-count="4" data-suffix="/4">4/4</span><span class="k">assessable fixes confirmed: reverting breaks the test</span></div>
       <div class="tile"><span class="n em" data-count="24" data-suffix="%">24%</span><span class="k">of recent code-fixes (20/84) shipped with no regression test</span></div>
@@ -292,7 +307,7 @@ rebuild · run the whole suite
   <div class="inner">
     <p class="eyebrow r">proof iii · the verifier trains the model</p>
     <h2 class="kicker r d1">The verifier<br>is the teacher.</h2>
-    <p class="sub r d2">A model from scratch — <b style="color:var(--ash)">no pretrained weights</b> — learns to synthesize programs by inverting the exact interpreter: every random program is a free, perfectly-labeled example. Pure reinforcement from reward collapsed (0/10, worse than random). This bootstraps immediately. And its output isn't a toy format — it's <b style="color:var(--ash)">real MLIR</b> the actual compiler accepts and runs.</p>
+    <p class="sub r d2">A model from scratch — <b style="color:var(--ash)">no pretrained weights</b> — learns to synthesize programs by inverting the exact interpreter: every random program is a free, perfectly-labeled example. Pure reinforcement from reward collapsed (0/10, worse than random). This bootstraps immediately. And its output isn’t a toy format — it’s <b style="color:var(--ash)">real MLIR</b> the actual compiler accepts and runs.</p>
     <div class="tiles r d3">
       <div class="tile"><span class="n ok" data-count="18" data-suffix="/20">18/20</span><span class="k">held-out targets solved — flat across every difficulty</span></div>
       <div class="tile"><span class="n" data-count="10" data-suffix="/10">10/10</span><span class="k">programs emitted as real MLIR, verified by the MLIR compiler</span></div>
@@ -324,7 +339,7 @@ func.func @f(%x: i8) -> i8 {
         <div class="row"><span class="sw" style="background:var(--ember)"></span><div><b>Verifier-trained model</b><br><span>~5 candidates, flat · 18/20 solved · 5–15× over search</span></div></div>
       </div>
     </div>
-    <p class="mono-note r">Not "bigger model, more text." Learned proposal makes an exponentially-growing space navigable at <b>flat cost</b> — the edge compounds as problems get harder. The same loop scales to MLIR: programs become IR edits, the verifier becomes compile-and-test over a whole codebase's history.</p>
+    <p class="mono-note r">Not "bigger model, more text." Learned proposal makes an exponentially-growing space navigable at <b>flat cost</b> — the edge compounds as problems get harder. The same loop scales to MLIR: programs become IR edits, the verifier becomes compile-and-test over a whole codebase’s history.</p>
   </div>
 </section>
 
@@ -332,9 +347,9 @@ func.func @f(%x: i8) -> i8 {
 <section class="scene" data-nav="Honest" id="s7">
   <div class="inner">
     <p class="eyebrow r">the honest part</p>
-    <h2 class="kicker r d1">What didn't work.</h2>
+    <h2 class="kicker r d1">What didn’t work.</h2>
     <ul class="list r d2">
-      <li><b>Representation isn't the lever.</b> The same anomaly scan localizes bugs no better on IR than on source (6.1% vs 7.0%); library LLVM IR can't even see generic functions. We learned it for ~$3 instead of betting a raise on it.</li>
+      <li><b>Representation isn’t the lever.</b> The same anomaly scan localizes bugs no better on IR than on source (6.1% vs 7.0%); library LLVM IR can’t even see generic functions. We learned it for ~$3 instead of betting a raise on it.</li>
       <li><b>Pure RL from reward collapses from scratch</b> — it never finds the first correct answer to learn from. The fix: let the verifier <i>generate</i> the data, not just score it.</li>
       <li>Both failures shaped the architecture that works. We can afford to report them — <b>because the verifier makes being wrong cheap.</b></li>
     </ul>
@@ -350,7 +365,7 @@ func.func @f(%x: i8) -> i8 {
     <div class="road r d3">
       <div class="rc now"><span class="pill live">live now</span><h3>Verified bug finding</h3><p>Every fix in a repo's history becomes a permanent, verified detector and a test-coverage audit. No LLM, runs in CI, nothing leaves the building, stronger with every merge.</p></div>
       <div class="rc"><span class="pill next">next</span><h3>Compiler switcher</h3><p>Same program, swap the machine file — the compiler re-checks placement and capacity against new hardware before a binary exists. Admits a valid tensor, refuses an oversized or wrong-typed one, by proof.</p></div>
-      <div class="rc"><span class="pill bet">the bet</span><h3>Verified computation at scale</h3><p>Train on IR across a codebase's whole history, verifier in the loop, on MLIR as the universal substrate. A model whose edge over brute force compounds with problem hardness.</p></div>
+      <div class="rc"><span class="pill bet">the bet</span><h3>Verified computation at scale</h3><p>Train on IR across a codebase’s whole history, verifier in the loop, on MLIR as the universal substrate. A model whose edge over brute force compounds with problem hardness.</p></div>
     </div>
   </div>
 </section>
@@ -362,8 +377,8 @@ func.func @f(%x: i8) -> i8 {
     <h2 class="big r d1">Nothing trusted.<br><span class="em">Everything checked.</span></h2>
     <p class="sub r d2">Two live demos, built in a day, running in your browser right now.</p>
     <div class="cta r d3">
-      <a class="go" href="./cpu.html" target="_blank" rel="noopener">The CPU cross-check →</a>
-      <a href="./lens.html" target="_blank" rel="noopener">Daybreak Lens →</a>
+      <a class="go" href="./cpu.html" target="_blank" rel="noopener">The CPU cross-check <span aria-hidden="true">→</span></a>
+      <a href="./lens.html" target="_blank" rel="noopener">Daybreak Lens <span aria-hidden="true">→</span></a>
     </div>
   </div>
 </section>
