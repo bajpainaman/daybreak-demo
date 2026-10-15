@@ -110,8 +110,8 @@
 
   /* honest list */
   ul.list{ list-style:none; margin:26px 0 0; padding:0; display:grid; gap:18px; max-width:72ch; }
-  ul.list li{ display:grid; grid-template-columns:1.3em 1fr; gap:14px; color:var(--cinder); font-size:18px; }
-  ul.list li::before{ content:"—"; color:var(--ember); }
+  ul.list li{ position:relative; padding-left:1.7em; color:var(--cinder); font-size:18px; line-height:1.55; }
+  ul.list li::before{ content:"—"; color:var(--ember); position:absolute; left:0; top:0; }
   ul.list li b{ color:var(--ash); font-weight:600; }
 
   /* roadmap */
@@ -145,64 +145,35 @@
   ::-webkit-scrollbar-thumb{ background:var(--seam); border-radius:10px; border:2px solid var(--soot); }
   ::-webkit-scrollbar-thumb:hover{ background:var(--ember); }
 
-  /* hero: ember glow behind the wordmark, soft vignette, fuller fire */
-  #hero::before{ content:""; position:absolute; inset:0; z-index:0; pointer-events:none;
-    background:radial-gradient(58% 52% at 50% 45%, color-mix(in srgb,var(--ember) 22%,transparent), transparent 72%);
-    animation:heroglow 7s ease-in-out infinite; }
+  /* hero: a soft vignette over the fire (doom stays) */
   #hero::after{ content:""; position:absolute; inset:0; z-index:0; pointer-events:none;
-    background:radial-gradient(130% 95% at 50% 48%, transparent 52%, var(--soot) 100%); }
-  @keyframes heroglow{ 0%,100%{opacity:.65} 50%{opacity:1} }
-  @media (prefers-reduced-motion:reduce){ #hero::before{ animation:none; } }
-  #fire{ opacity:.6; }
-  .logo{ text-shadow:0 0 46px color-mix(in srgb,var(--ember) 24%,transparent); }
-  .logo span{ text-shadow:0 0 54px color-mix(in srgb,var(--ember) 52%,transparent); }
+    background:radial-gradient(130% 95% at 50% 48%, transparent 55%, var(--soot) 100%); }
+  #fire{ opacity:.55; }
   .hero-fade{ transition:opacity .2s linear; }
 
-  /* headlines: faint ember warmth on the accented words */
-  .big .em, .kicker .em{ text-shadow:0 0 36px color-mix(in srgb,var(--ember) 38%,transparent); }
-
-  /* tiles, nodes, roadmap cards: lift + ember edge-glow on hover */
-  .tile, .node, .rc{ transition:transform .4s cubic-bezier(.22,.61,.36,1), border-color .4s, box-shadow .4s, background .4s; }
-  .tile:hover, .rc:hover{ transform:translateY(-5px);
-    border-color:color-mix(in srgb,var(--ember) 55%,var(--seam));
-    box-shadow:0 26px 54px -32px rgba(0,0,0,.92), 0 0 34px -18px color-mix(in srgb,var(--ember) 60%,transparent); }
-  .node:hover{ border-color:color-mix(in srgb,var(--ember) 45%,var(--seam)); }
-  .tile .n{ text-shadow:0 0 30px color-mix(in srgb,currentColor 20%,transparent); }
-  .tile .n.ok{ text-shadow:0 0 30px color-mix(in srgb,var(--ok) 34%,transparent); }
-  .tile .n.em{ text-shadow:0 0 30px color-mix(in srgb,var(--ember) 40%,transparent); }
-
-  /* the verify node quietly breathes (it is the whole point) */
-  .node.v{ box-shadow:0 0 0 1px color-mix(in srgb,var(--ok) 20%,transparent) inset, 0 0 40px -26px color-mix(in srgb,var(--ok) 70%,transparent); }
+  /* tiles & cards: lift on hover (flat shadow, no glow) */
+  .tile, .node, .rc{ transition:transform .4s cubic-bezier(.22,.61,.36,1), border-color .4s, box-shadow .4s; }
+  .tile:hover, .rc:hover{ transform:translateY(-4px);
+    border-color:color-mix(in srgb,var(--ember) 40%,var(--seam));
+    box-shadow:0 22px 46px -30px rgba(0,0,0,.9); }
+  .node:hover{ border-color:color-mix(in srgb,var(--ember) 34%,var(--seam)); }
   .node.v h3{ color:var(--ok); }
 
-  /* alt scenes get a hairline ember seam at the top */
-  .scene.alt{ border-top:1px solid color-mix(in srgb,var(--ember) 15%,transparent);
-    box-shadow:0 -1px 44px -22px color-mix(in srgb,var(--ember) 42%,transparent); }
+  /* CTA buttons: lift + subtle fill on hover */
+  .cta a{ transition:transform .3s, border-color .3s, background .3s; }
+  .cta a:hover{ transform:translateY(-2px); background:color-mix(in srgb,var(--ember) 12%,transparent); }
+  .cta a.go:hover{ background:color-mix(in srgb,var(--ember) 22%,transparent); }
 
-  /* demo frame: subtle warm rim */
-  .demo{ box-shadow:0 44px 94px -46px rgba(0,0,0,.95), 0 0 0 1px color-mix(in srgb,var(--ember) 10%,transparent); }
-
-  /* CTA buttons glow on hover */
-  .cta a{ transition:transform .3s, border-color .3s, background .3s, box-shadow .3s; }
-  .cta a:hover{ transform:translateY(-2px); background:color-mix(in srgb,var(--ember) 14%,transparent);
-    box-shadow:0 0 34px -10px color-mix(in srgb,var(--ember) 55%,transparent); }
-  .cta a.go:hover{ background:color-mix(in srgb,var(--ember) 26%,transparent); }
-
-  /* progress rail: active dot glows */
-  nav.rail a.on{ box-shadow:0 0 15px color-mix(in srgb,var(--ember) 85%,transparent); }
-
-  /* ------------------------------ legendary layer ------------------------------ */
+  /* ------------------------------ structure layer (no glow) ------------------------------ */
   /* top scroll-progress line */
-  #progress{ position:fixed; top:0; left:0; height:2px; width:0; z-index:70;
-    background:linear-gradient(90deg,var(--ember2),var(--ember));
-    box-shadow:0 0 12px color-mix(in srgb,var(--ember) 80%,transparent); }
+  #progress{ position:fixed; top:0; left:0; height:2px; width:0; z-index:70; background:var(--ember); }
 
   /* sticky wordmark bar, slides in past the hero */
   header.top{ position:fixed; top:0; left:0; right:0; z-index:55; display:flex; align-items:center; gap:18px;
     padding:13px var(--gutter); transform:translateY(-120%);
     transition:transform .5s cubic-bezier(.22,.61,.36,1), border-color .5s;
     -webkit-backdrop-filter:blur(12px); backdrop-filter:blur(12px);
-    background:color-mix(in srgb,var(--soot) 70%,transparent); border-bottom:1px solid transparent; }
+    background:color-mix(in srgb,var(--soot) 80%,transparent); border-bottom:1px solid transparent; }
   header.top.show{ transform:none; border-bottom-color:var(--seam); }
   header.top .wm{ font-family:var(--display); font-weight:800; text-transform:uppercase; letter-spacing:.02em; font-size:21px; line-height:1; }
   header.top .wm i{ color:var(--ember); font-style:normal; }
@@ -210,41 +181,24 @@
   header.top .sec b{ color:var(--ash); font-weight:500; }
   header.top .demos{ margin-left:auto; font:600 13px/1 var(--body); color:var(--ash);
     border:1px solid var(--seam); border-radius:999px; padding:10px 17px; transition:.3s; }
-  header.top .demos:hover{ border-color:var(--ember); background:color-mix(in srgb,var(--ember) 14%,transparent);
-    box-shadow:0 0 26px -10px color-mix(in srgb,var(--ember) 55%,transparent); }
+  header.top .demos:hover{ border-color:var(--ember); background:color-mix(in srgb,var(--ember) 12%,transparent); }
   @media (max-width:560px){ header.top .sec{ display:none; } }
-
-  /* "first light" — a glowing horizon rises in the hero (daybreak) */
-  #hero .dawn{ position:absolute; left:0; right:0; bottom:17%; height:1px; z-index:0; pointer-events:none; opacity:0;
-    background:linear-gradient(90deg,transparent, color-mix(in srgb,var(--ember) 90%,transparent) 50%, transparent);
-    box-shadow:0 0 44px 7px color-mix(in srgb,var(--ember) 42%,transparent); animation:dawn 2.6s .35s ease forwards; }
-  @keyframes dawn{ from{ opacity:0; transform:translateY(26px) scaleX(.6); } to{ opacity:.82; transform:none; } }
-  @media (prefers-reduced-motion:reduce){ #hero .dawn{ opacity:.6; animation:none; } }
-
-  /* cursor spotlight — a soft ember light follows the pointer (desktop) */
-  .spot{ position:fixed; left:0; top:0; width:640px; height:640px; border-radius:50%; z-index:1; pointer-events:none;
-    transform:translate(-50%,-50%); opacity:0; transition:opacity .6s; mix-blend-mode:screen;
-    background:radial-gradient(circle, color-mix(in srgb,var(--ember) 9%,transparent), transparent 60%); }
 
   /* chapter numbers on each scene */
   .scene .chap{ position:absolute; top:clamp(24px,5vh,52px); left:var(--gutter); margin:0;
-    font:500 12px/1 var(--mono); letter-spacing:.22em; color:color-mix(in srgb,var(--cinder) 55%,transparent); }
+    font:500 12px/1 var(--mono); letter-spacing:.22em; color:color-mix(in srgb,var(--cinder) 50%,transparent); }
 
-  /* the loop shows flow: arrows drift and brighten in sequence */
+  /* the loop shows flow: arrows drift in sequence */
   .loop .arrow{ animation:flow 2.1s ease-in-out infinite; }
   .loop .arrow:last-of-type{ animation-delay:.45s; }
-  @keyframes flow{ 0%,100%{ opacity:.45; transform:translateX(0); } 50%{ opacity:1; transform:translateX(6px); } }
-  @media (max-width:720px){ @keyframes flow{ 0%,100%{opacity:.45;transform:rotate(90deg) translateX(0)} 50%{opacity:1;transform:rotate(90deg) translateX(6px)} } }
+  @keyframes flow{ 0%,100%{ opacity:.5; transform:translateX(0); } 50%{ opacity:1; transform:translateX(6px); } }
+  @media (max-width:720px){ @keyframes flow{ 0%,100%{opacity:.5;transform:rotate(90deg) translateX(0)} 50%{opacity:1;transform:rotate(90deg) translateX(6px)} } }
   @media (prefers-reduced-motion:reduce){ .loop .arrow{ animation:none; } }
-
-  /* chart: glow under the model line */
-  .chart .glow{ filter:blur(5px); opacity:.5; }
 </style>
 </head>
 <body>
 <div class="grain" aria-hidden="true"></div>
 <div id="progress"></div>
-<div class="spot" aria-hidden="true"></div>
 <header class="top" aria-hidden="true">
   <span class="wm">Day<i>break</i></span>
   <span class="sec">— <b>Daybreak</b></span>
@@ -256,7 +210,6 @@
 <!-- 01 HERO -->
 <section id="hero" data-nav="Daybreak">
   <canvas id="fire" width="128" height="64" aria-hidden="true"></canvas>
-  <div class="dawn" aria-hidden="true"></div>
   <div class="inner hero-fade">
     <h1 class="logo">Day<span>break</span></h1>
     <p class="tag r in">Verified computation.<br>Nothing trusted, everything checked.</p>
@@ -485,8 +438,7 @@ func.func @f(%x: i8) -> i8 {
     const area=mk('path',{fill:'#f4883a',opacity:.09,stroke:'none'});
     area.setAttribute('d', data.map((d,i)=>(i?'L':'M')+xs(i)+' '+yCand(d.model)).join(' ')
       +' L'+xs(data.length-1)+' '+(mt+ih)+' L'+xs(0)+' '+(mt+ih)+' Z');
-    const glow=mkline('model','#f4883a',8); glow.setAttribute('class','glow');
-    g.appendChild(area); g.appendChild(glow); g.appendChild(randL); g.appendChild(modelL);
+    g.appendChild(area); g.appendChild(randL); g.appendChild(modelL);
     data.forEach((d,i)=>{ g.appendChild(mk('circle',{cx:xs(i),cy:yCand(d.rand),r:3,fill:'#a89a8d'}));
       g.appendChild(mk('circle',{cx:xs(i),cy:yCand(d.model),r:4,fill:'#f4883a'})); });
     // endpoint labels
@@ -517,13 +469,6 @@ func.func @f(%x: i8) -> i8 {
   addEventListener('scroll',onScroll,{passive:true}); onScroll();
   const lio=new IntersectionObserver((es)=>{ for(const e of es) if(e.isIntersecting && secLabel){ secLabel.textContent=e.target.dataset.nav; } }, {threshold:.5});
   secs.forEach(s=>lio.observe(s));
-
-  /* ---- cursor spotlight (desktop, fine pointer) ---- */
-  const spot=document.querySelector('.spot');
-  if(spot && matchMedia('(pointer:fine)').matches && !reduce){
-    addEventListener('pointermove',(e)=>{ spot.style.left=e.clientX+'px'; spot.style.top=e.clientY+'px'; spot.style.opacity='1'; },{passive:true});
-    addEventListener('pointerleave',()=>{ spot.style.opacity='0'; });
-  }
 
   /* ---- hero parallax + fade as you scroll off it ---- */
   const hf=document.querySelector('.hero-fade');
