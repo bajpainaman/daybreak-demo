@@ -130,16 +130,77 @@
   .cta a.go{ border-color:var(--ember); background:color-mix(in srgb,var(--ember) 16%,transparent); }
   .cta a:hover{ border-color:var(--ember); }
   footer{ padding:40px var(--gutter) 70px; color:var(--cinder); font:13px/1.7 var(--mono); border-top:1px solid var(--seam); }
+
+  /* ------------------------------ gorgeous polish pass ------------------------------ */
+  /* film grain for depth */
+  .grain{ position:fixed; inset:0; z-index:60; pointer-events:none; opacity:.045; mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size:170px 170px; }
+  @media (prefers-reduced-motion:reduce){ .grain{ display:none; } }
+
+  /* warmer, branded scrollbar */
+  html{ scrollbar-color:var(--seam) var(--soot); }
+  ::-webkit-scrollbar{ width:11px; height:11px; }
+  ::-webkit-scrollbar-track{ background:var(--soot); }
+  ::-webkit-scrollbar-thumb{ background:var(--seam); border-radius:10px; border:2px solid var(--soot); }
+  ::-webkit-scrollbar-thumb:hover{ background:var(--ember); }
+
+  /* hero: ember glow behind the wordmark, soft vignette, fuller fire */
+  #hero::before{ content:""; position:absolute; inset:0; z-index:0; pointer-events:none;
+    background:radial-gradient(58% 52% at 50% 45%, color-mix(in srgb,var(--ember) 22%,transparent), transparent 72%);
+    animation:heroglow 7s ease-in-out infinite; }
+  #hero::after{ content:""; position:absolute; inset:0; z-index:0; pointer-events:none;
+    background:radial-gradient(130% 95% at 50% 48%, transparent 52%, var(--soot) 100%); }
+  @keyframes heroglow{ 0%,100%{opacity:.65} 50%{opacity:1} }
+  @media (prefers-reduced-motion:reduce){ #hero::before{ animation:none; } }
+  #fire{ opacity:.6; }
+  .logo{ text-shadow:0 0 46px color-mix(in srgb,var(--ember) 24%,transparent); }
+  .logo span{ text-shadow:0 0 54px color-mix(in srgb,var(--ember) 52%,transparent); }
+  .hero-fade{ transition:opacity .2s linear; }
+
+  /* headlines: faint ember warmth on the accented words */
+  .big .em, .kicker .em{ text-shadow:0 0 36px color-mix(in srgb,var(--ember) 38%,transparent); }
+
+  /* tiles, nodes, roadmap cards: lift + ember edge-glow on hover */
+  .tile, .node, .rc{ transition:transform .4s cubic-bezier(.22,.61,.36,1), border-color .4s, box-shadow .4s, background .4s; }
+  .tile:hover, .rc:hover{ transform:translateY(-5px);
+    border-color:color-mix(in srgb,var(--ember) 55%,var(--seam));
+    box-shadow:0 26px 54px -32px rgba(0,0,0,.92), 0 0 34px -18px color-mix(in srgb,var(--ember) 60%,transparent); }
+  .node:hover{ border-color:color-mix(in srgb,var(--ember) 45%,var(--seam)); }
+  .tile .n{ text-shadow:0 0 30px color-mix(in srgb,currentColor 20%,transparent); }
+  .tile .n.ok{ text-shadow:0 0 30px color-mix(in srgb,var(--ok) 34%,transparent); }
+  .tile .n.em{ text-shadow:0 0 30px color-mix(in srgb,var(--ember) 40%,transparent); }
+
+  /* the verify node quietly breathes (it is the whole point) */
+  .node.v{ box-shadow:0 0 0 1px color-mix(in srgb,var(--ok) 20%,transparent) inset, 0 0 40px -26px color-mix(in srgb,var(--ok) 70%,transparent); }
+  .node.v h3{ color:var(--ok); }
+
+  /* alt scenes get a hairline ember seam at the top */
+  .scene.alt{ border-top:1px solid color-mix(in srgb,var(--ember) 15%,transparent);
+    box-shadow:0 -1px 44px -22px color-mix(in srgb,var(--ember) 42%,transparent); }
+
+  /* demo frame: subtle warm rim */
+  .demo{ box-shadow:0 44px 94px -46px rgba(0,0,0,.95), 0 0 0 1px color-mix(in srgb,var(--ember) 10%,transparent); }
+
+  /* CTA buttons glow on hover */
+  .cta a{ transition:transform .3s, border-color .3s, background .3s, box-shadow .3s; }
+  .cta a:hover{ transform:translateY(-2px); background:color-mix(in srgb,var(--ember) 14%,transparent);
+    box-shadow:0 0 34px -10px color-mix(in srgb,var(--ember) 55%,transparent); }
+  .cta a.go:hover{ background:color-mix(in srgb,var(--ember) 26%,transparent); }
+
+  /* progress rail: active dot glows */
+  nav.rail a.on{ box-shadow:0 0 15px color-mix(in srgb,var(--ember) 85%,transparent); }
 </style>
 </head>
 <body>
+<div class="grain" aria-hidden="true"></div>
 
 <nav class="rail" aria-label="Sections"></nav>
 
 <!-- 01 HERO -->
 <section id="hero" data-nav="Daybreak">
   <canvas id="fire" width="128" height="64" aria-hidden="true"></canvas>
-  <div class="inner">
+  <div class="inner hero-fade">
     <h1 class="logo">Day<span>break</span></h1>
     <p class="tag r in">Verified computation.<br>Nothing trusted, everything checked.</p>
   </div>
@@ -382,6 +443,12 @@ func.func @f(%x: i8) -> i8 {
   const links=[...rail.children];
   const nio=new IntersectionObserver((es)=>{ for(const e of es){ const i=secs.indexOf(e.target); if(i<0)continue; if(e.isIntersecting){ links.forEach(l=>l.classList.remove('on')); links[i].classList.add('on'); } } }, {threshold:.5});
   secs.forEach(s=>nio.observe(s));
+
+  /* ---- hero parallax + fade as you scroll off it ---- */
+  const hf=document.querySelector('.hero-fade');
+  if(hf && !reduce){ let tick=false; addEventListener('scroll',()=>{ if(tick)return; tick=true;
+    requestAnimationFrame(()=>{ const y=scrollY, p=Math.min(1,y/(innerHeight*.8));
+      hf.style.opacity=String(1-p*.92); hf.style.transform='translateY('+(y*.12).toFixed(1)+'px)'; tick=false; }); }, {passive:true}); }
 })();
 </script>
 </body>
